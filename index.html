@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Honor Board · Top Achievers</title>
+  <!-- Google Fonts: clean, modern sans-serif -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <!-- canvas-confetti for celebration effect -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #f5f7fb;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      color: #1e293b;
+    }
+
+    /* main container */
+    .honor-board {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+    }
+
+    /* slides wrapper */
+    .slides-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 1.5s ease;
+      transform: scale(1.02);
+      overflow-y: auto;
+      padding: 2rem 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1);
+      z-index: 10;
+    }
+
+    /* hide scrollbar for cleaner look (optional) */
+    .slide::-webkit-scrollbar {
+      width: 6px;
+    }
+    .slide::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .slide::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 20px;
+    }
+
+    /* header with logo, month, department */
+    .board-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding: 0.5rem 1rem;
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(8px);
+      border-radius: 60px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+      border: 1px solid rgba(255,255,255,0.7);
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .company-logo {
+      max-height: 44px;
+      width: auto;
+      display: block;
+      border-radius: 12px;
+    }
+
+    .company-logo-placeholder {
+      font-weight: 600;
+      font-size: 1.25rem;
+      background: #eef2ff;
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      color: #1e3a8a;
+    }
+
+    .month-dept {
+      display: flex;
+      gap: 1rem;
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+
+    .month-title {
+      font-weight: 600;
+      font-size: 1.25rem;
+      background: #1e293b;
+      color: white;
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      letter-spacing: 0.3px;
+    }
+
+    .department {
+      font-weight: 500;
+      color: #475569;
+      background: #f1f5f9;
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      font-size: 1rem;
+    }
+
+    /* main hero card for rank 1 */
+    .hero-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .hero-avatar {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 30px 40px -20px rgba(0,20,40,0.25),
+                  0 0 0 4px rgba(255,255,255,0.8);
+      margin-bottom: 1.5rem;
+      background: #e2e8f0;
+      transition: transform 0.3s ease;
+    }
+
+    .hero-avatar.initials-avatar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      font-weight: 500;
+      color: #1e293b;
+      background: linear-gradient(135deg, #d9e2ef, #bdd3eb);
+      text-transform: uppercase;
+    }
+
+    .hero-name {
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(to right, #1e293b, #2d3c53);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .hero-title {
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: #4b5565;
+      margin-top: 0.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero-comment {
+      font-size: 1.2rem;
+      font-style: italic;
+      color: #2c3e50;
+      background: #ecfdf5;
+      padding: 0.6rem 1.8rem;
+      border-radius: 60px;
+      margin: 1rem 0 1.2rem;
+      box-shadow: 0 2px 8px rgba(0,80,50,0.05);
+      max-width: 80%;
+    }
+
+    /* metrics row */
+    .metrics {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.8rem;
+      margin: 1.5rem 0;
+    }
+
+    .metric-item {
+      background: white;
+      border-radius: 40px;
+      padding: 0.5rem 1.8rem;
+      box-shadow: 0 8px 18px -8px rgba(0,34,64,0.08);
+      border: 1px solid rgba(203, 213, 225, 0.4);
+      font-weight: 500;
+      backdrop-filter: blur(4px);
+    }
+
+    .metric-label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #64748b;
+    }
+
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: #0f172a;
+    }
+
+    /* bottom podiums for rank 2 & 3 */
+    .podium {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 2rem;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .podium-card {
+      background: white;
+      border-radius: 40px;
+      padding: 1rem 2rem;
+      min-width: 200px;
+      text-align: center;
+      box-shadow: 0 10px 20px -10px rgba(0,0,0,0.08);
+      border: 1px solid #e9eef3;
+      transition: all 0.2s;
+    }
+
+    .podium-card:hover {
+      transform: translateY(-4px);
+      border-color: #b9d0f0;
+    }
+
+    .podium-rank {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+    }
+
+    .podium-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0.2rem 0;
+    }
+
+    .podium-title {
+      color: #475569;
+    }
+
+    /* music bar */
+    .music-control {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(12px);
+      border-radius: 60px;
+      padding: 0.45rem 1.2rem 0.45rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255,255,255,0.7);
+      z-index: 99;
+      font-size: 0.9rem;
+    }
+
+    .music-control button {
+      background: #1e293b;
+      border: none;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 1.1rem;
+    }
+
+    .music-control button:hover {
+      background: #0f172a;
+      transform: scale(1.05);
+    }
+
+    .music-control span {
+      max-width: 140px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* loading / error */
+    .loading-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      transition: opacity 0.5s;
+    }
+    .loading-spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #2563eb;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    .no-data-message {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      font-size: 1.8rem;
+      color: #94a3b8;
+    }
+
+    /* responsive */
+    @media (max-width: 700px) {
+      .hero-name { font-size: 2.2rem; }
+      .hero-avatar { width: 160px; height: 160px; font-size: 3.5rem; }
+      .board-header { flex-direction: column; align-items: start; border-radius: 32px; }
+      .metric-value { font-size: 1.5rem; }
+      .podium-card { min-width: 150px; padding: 0.8rem 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="honor-board">
+    <!-- loading overlay (hidden after first fetch) -->
+    <div id="loadingOverlay" class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+
+    <!-- slides will be injected here -->
+    <div id="slidesContainer" class="slides-container"></div>
+
+    <!-- music control (hidden by default) -->
+    <div id="musicControl" class="music-control" style="display: none;">
+      <button id="musicPlayPauseBtn">▶️</button>
+      <span id="musicTitle">background melody</span>
+      <input type="range" id="musicVolume" min="0" max="1" step="0.05" value="0.2" style="width: 60px;">
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // --------------------------------------------------------------
+      // CONFIGURATION – REPLACE WITH YOUR GOOGLE SHEET ID
+      // --------------------------------------------------------------
+      const SHEET_ID = 'YOUR_SHEET_ID';  // <-- PASTE YOUR SHEET ID HERE
+
+      // sheet names
+      const SETTINGS_SHEET = 'settings';
+      const AGENTS_SHEET = 'agents';
+
+      // global state
+      let slidesData = [];                // array of slide objects (each corresponds to a rank=1 agent)
+      let currentSlideIndex = 0;
+      let slideInterval = null;
+      let confettiInterval = null;
+      let refreshInterval = null;
+      let audioElement = null;
+      let isPlaying = false;
+
+      // DOM elements
+      const slidesContainer = document.getElementById('slidesContainer');
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      const musicControlDiv = document.getElementById('musicControl');
+      const musicPlayBtn = document.getElementById('musicPlayPauseBtn');
+      const musicTitleSpan = document.getElementById('musicTitle');
+      const musicVolumeInput = document.getElementById('musicVolume');
+
+      // --------------------------------------------------------------
+      // Helper: fetch Google Sheet as JSON (gviz/tq)
+      // --------------------------------------------------------------
+      async function fetchSheetData(sheetName) {
+        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+        const response = await fetch(url);
+        const text = await response.text();
+        // extract JSON from the JS response: /*O_o*/ google.visualization.Query.setResponse({...});
+        const jsonStart = text.indexOf('{');
+        const jsonEnd = text.lastIndexOf('}');
+        if (jsonStart === -1 || jsonEnd === -1) throw new Error('Invalid response format');
+        const jsonText = text.slice(jsonStart, jsonEnd + 1);
+        return JSON.parse(jsonText);
+      }
+
+      // --------------------------------------------------------------
+      // Parse rows from Google Visualization API response
+      // --------------------------------------------------------------
+      function parseRows(googleResponse) {
+        if (!googleResponse.table || !googleResponse.table.rows) return [];
+        const cols = googleResponse.table.cols;
+        const rows = googleResponse.table.rows;
+        return rows.map(row => {
+          const obj = {};
+          row.c.forEach((cell, idx) => {
+            const colName = cols[idx] ? cols[idx].label : `col${idx}`;
+            obj[colName] = cell ? cell.v : '';
+          });
+          return obj;
+        });
+      }
+
+      // --------------------------------------------------------------
+      // Fetch both sheets and build slides
+      // --------------------------------------------------------------
+      async function fetchAllAndRender() {
+        try {
+          const [settingsRes, agentsRes] = await Promise.all([
+            fetchSheetData(SETTINGS_SHEET),
+            fetchSheetData(AGENTS_SHEET)
+          ]);
+
+          const settingsRows = parseRows(settingsRes);
+          const agentsRows = parseRows(agentsRes);
+
+          // build settings map (key -> value)
+          const settings = {};
+          settingsRows.forEach(row => {
+            if (row.key && row.value !== undefined) {
+              settings[row.key] = row.value;
+            }
+          });
+
+          // music setup
+          setupMusic(settings);
+
+          // process agents
+          const agents = agentsRows.map(row => ({
+            rank: String(row.rank || '').trim(),
+            name: row.name || '',
+            title: row.title || '',
+            comment: row.comment || '',
+            image_url: row.image_url || '',
+            sales: row.sales || '',
+            dos: row.dos || '',
+            tasks: row.tasks || ''
+          })).filter(a => a.rank && a.name); // basic filter
+
+          // find rank 1 agents (main slides)
+          const rank1Agents = agents.filter(a => a.rank === '1');
+          // find rank 2 and 3 (first occurrence, stable)
+          const rank2 = agents.find(a => a.rank === '2');
+          const rank3 = agents.find(a => a.rank === '3');
+
+          if (rank1Agents.length === 0) {
+            // fallback: show no data
+            slidesContainer.innerHTML = `<div class="no-data-message">✨ No top achievers yet ✨</div>`;
+            return;
+          }
+
+          // prepare slides array
+          slidesData = rank1Agents.map(hero => ({
+            hero,
+            rank2,
+            rank3,
+            settings
+          }));
+
+          // render first slide
+          renderSlides();
+          startSlideShow();
+
+          // hide loading overlay
+          loadingOverlay.style.opacity = '0';
+          setTimeout(() => {
+            loadingOverlay.style.display = 'none';
+          }, 500);
+
+        } catch (error) {
+          console.error('Error fetching data:', error);
+          slidesContainer.innerHTML = `<div class="no-data-message">⚠️ Unable to load data. Check Sheet ID or network.</div>`;
+          loadingOverlay.style.opacity = '0';
+          setTimeout(() => {
+            loadingOverlay.style.display = 'none';
+          }, 500);
+        }
+      }
+
+      // --------------------------------------------------------------
+      // Music setup (autoplay attempt with low volume)
+      // --------------------------------------------------------------
+      function setupMusic(settings) {
+        const musicUrl = settings.music_url;
+        const musicTitle = settings.music_title || 'honor track';
+
+        if (!musicUrl) {
+          musicControlDiv.style.display = 'none';
+          return;
+        }
+
+        // create audio element
+        if (audioElement) audioElement.pause();
+        audioElement = new Audio(musicUrl);
+        audioElement.loop = true;
+        audioElement.volume = 0.2; // low volume
+        audioElement.load();
+
+        musicTitleSpan.textContent = musicTitle;
+        musicControlDiv.style.display = 'flex';
+
+        // attempt autoplay (may be blocked)
+        audioElement.play().then(() => {
+          isPlaying = true;
+          musicPlayBtn.textContent = '⏸️';
+        }).catch(() => {
+          isPlaying = false;
+          musicPlayBtn.textContent = '▶️';
+          console.log('Autoplay blocked. User must click play.');
+        });
+
+        // play/pause button
+        musicPlayBtn.onclick = () => {
+          if (!audioElement) return;
+          if (isPlaying) {
+            audioElement.pause();
+            musicPlayBtn.textContent = '▶️';
+          } else {
+            audioElement.play();
+            musicPlayBtn.textContent = '⏸️';
+          }
+          isPlaying = !isPlaying;
+        };
+
+        // volume slider
+        musicVolumeInput.addEventListener('input', (e) => {
+          if (audioElement) {
+            audioElement.volume = parseFloat(e.target.value);
+          }
+        });
+      }
+
+      // --------------------------------------------------------------
+      // Render all slides (hidden) and activate first
+      // --------------------------------------------------------------
+      function renderSlides() {
+        if (!slidesData.length) return;
+
+        let slidesHTML = '';
+        slidesData.forEach((slide, idx) => {
+          slidesHTML += buildSlideHTML(slide, idx);
+        });
+
+        slidesContainer.innerHTML = slidesHTML;
+
+        // activate first slide
+        const firstSlide = document.querySelector('.slide');
+        if (firstSlide) firstSlide.classList.add('active');
+
+        // start confetti for first slide
+        triggerConfettiForCurrent();
+      }
+
+      // --------------------------------------------------------------
+      // Build HTML for one slide (using slide data)
+      // --------------------------------------------------------------
+      function buildSlideHTML(slide, index) {
+        const { hero, rank2, rank3, settings } = slide;
+        const monthTitle = settings.month_title || 'March 2025';
+        const department = settings.department || 'Sales';
+        const companyName = settings.company_name || 'Company';
+        const companyLogo = settings.company_logo || '';
+        const heroImage = hero.image_url || '';
+        const heroInitials = getInitials(hero.name);
+        const metricsExist = hero.sales || hero.dos || hero.tasks;
+
+        return `
+          <div class="slide" data-index="${index}">
+            <!-- header -->
+            <div class="board-header">
+              <div class="logo-area">
+                ${companyLogo ? `<img class="company-logo" src="${companyLogo}" alt="${companyName}" loading="lazy">` : `<span class="company-logo-placeholder">${companyName}</span>`}
+              </div>
+              <div class="month-dept">
+                <span class="month-title">${escapeHTML(monthTitle)}</span>
+                <span class="department">${escapeHTML(department)}</span>
+              </div>
+            </div>
+
+            <!-- hero rank 1 -->
+            <div class="hero-section">
+              ${heroImage ? 
+                `<img class="hero-avatar" src="${heroImage}" alt="${hero.name}" loading="lazy">` : 
+                `<div class="hero-avatar initials-avatar">${heroInitials}</div>`
+              }
+              <div class="hero-name">${escapeHTML(hero.name)}</div>
+              <div class="hero-title">${escapeHTML(hero.title || 'Top Achiever')}</div>
+              ${hero.comment ? `<div class="hero-comment">“${escapeHTML(hero.comment)}”</div>` : ''}
+
+              <!-- metrics (only non-empty) -->
+              ${metricsExist ? `<div class="metrics">
+                ${hero.sales ? `<div class="metric-item"><div class="metric-label">Sales</div><div class="metric-value" data-count="${hero.sales}">0</div></div>` : ''}
+                ${hero.dos ? `<div class="metric-item"><div class="metric-label">DOS</div><div class="metric-value" data-count="${hero.dos}">0</div></div>` : ''}
+                ${hero.tasks ? `<div class="metric-item"><div class="metric-label">Tasks</div><div class="metric-value" data-count="${hero.tasks}">0</div></div>` : ''}
+              </div>` : ''}
+
+              <!-- podium for rank 2 & 3 (if exist) -->
+              <div class="podium">
+                ${rank2 ? `
+                  <div class="podium-card">
+                    <div class="podium-rank">Rank 2</div>
+                    <div class="podium-name">${escapeHTML(rank2.name)}</div>
+                    <div class="podium-title">${escapeHTML(rank2.title || '')}</div>
+                  </div>
+                ` : ''}
+                ${rank3 ? `
+                  <div class="podium-card">
+                    <div class="podium-rank">Rank 3</div>
+                    <div class="podium-name">${escapeHTML(rank3.name)}</div>
+                    <div class="podium-title">${escapeHTML(rank3.title || '')}</div>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // tiny escape for safety
+      function escapeHTML(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>"]/g, function(m) {
+          if (m === '&') return '&amp;';
+          if (m === '<') return '&lt;';
+          if (m === '>') return '&gt;';
+          if (m === '"') return '&quot;';
+          return m;
+        });
+      }
+
+      // get initials (max 2 letters)
+      function getInitials(name) {
+        if (!name) return '?';
+        const parts = name.trim().split(/\s+/);
+        if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+        return (parts[0].charAt(0) + parts[parts.length-1].charAt(0)).toUpperCase();
+      }
+
+      // --------------------------------------------------------------
+      // Slide show controls
+      // --------------------------------------------------------------
+      function startSlideShow() {
+        if (slideInterval) clearInterval(slideInterval);
+        slideInterval = setInterval(nextSlide, 30000); // 30 seconds
+      }
+
+      function nextSlide() {
+        if (!slidesData.length) return;
+        const slides = document.querySelectorAll('.slide');
+        if (slides.length === 0) return;
+
+        // remove active class from current
+        slides[currentSlideIndex].classList.remove('active');
+        // increment index (loop)
+        currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+        slides[currentSlideIndex].classList.add('active');
+
+        // start counters for new active slide
+        animateCounters(currentSlideIndex);
+        // confetti burst for new slide
+        triggerConfettiForCurrent();
+      }
+
+      // trigger confetti for 5 seconds
+      function triggerConfettiForCurrent() {
+        if (confettiInterval) clearInterval(confettiInterval);
+        const burst = () => {
+          confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, startVelocity: 20, colors: ['#2563eb', '#7c3aed', '#db2777'] });
+        };
+        // burst immediately and then every 300ms for 5 seconds
+        burst();
+        confettiInterval = setInterval(burst, 400);
+        setTimeout(() => {
+          clearInterval(confettiInterval);
+          confettiInterval = null;
+        }, 5000);
+      }
+
+      // animate numbers in active slide
+      function animateCounters(slideIndex) {
+        const slide = document.querySelector(`.slide[data-index="${slideIndex}"]`);
+        if (!slide) return;
+        const counters = slide.querySelectorAll('.metric-value');
+        counters.forEach(counter => {
+          const target = parseInt(counter.getAttribute('data-count'), 10) || 0;
+          if (target === 0) return;
+          let current = 0;
+          const step = Math.ceil(target / 40); // increment step
+          const timer = setInterval(() => {
+            current += step;
+            if (current >= target) {
+              counter.textContent = target;
+              clearInterval(timer);
+            } else {
+              counter.textContent = current;
+            }
+          }, 25);
+        });
+      }
+
+      // --------------------------------------------------------------
+      // Auto-refresh data every 60 seconds (preserve slide index if possible)
+      // --------------------------------------------------------------
+      function startAutoRefresh() {
+        if (refreshInterval) clearInterval(refreshInterval);
+        refreshInterval = setInterval(async () => {
+          const oldFirstSlideId = slidesData[0]?.hero?.name; // naive change detection
+          await fetchAllAndRender();
+          // attempt to keep same index (but data might change)
+          if (slidesData.length > 0) {
+            const slides = document.querySelectorAll('.slide');
+            if (slides.length > currentSlideIndex) {
+              slides.forEach(s => s.classList.remove('active'));
+              slides[currentSlideIndex % slides.length].classList.add('active');
+              animateCounters(currentSlideIndex % slides.length);
+            } else {
+              currentSlideIndex = 0;
+              document.querySelector('.slide')?.classList.add('active');
+              animateCounters(0);
+            }
+          }
+        }, 60000);
+      }
+
+      // --------------------------------------------------------------
+      // Initial load
+      // --------------------------------------------------------------
+      (async function init() {
+        await fetchAllAndRender();
+        startAutoRefresh();
+
+        // Optional: click to pause slideshow? not required but user-friendly.
+        // we'll keep it simple
+      })();
+
+    })();
+  </script>
+</body>
+</html>
