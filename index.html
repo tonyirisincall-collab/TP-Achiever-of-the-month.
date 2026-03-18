@@ -456,11 +456,11 @@ body { font-family:var(--font); color:var(--text); display:flex; flex-direction:
 
 <script>
 // ══════════════════════════════════════════════════
-//  ★ CONFIG — paste your Sheet ID here after setup
+//  ★ CONFIG
 // ══════════════════════════════════════════════════
-const SHEET_ID    = 'YOUR_GOOGLE_SHEET_ID_HERE';
-const SLIDE_MS    = 30000;   // 30 seconds per slide
-const CELEB_MS    = 5000;    // celebration duration
+const API_URL  = 'https://script.google.com/macros/s/AKfycbwHytDYTFfHrn7VxlsUUhE6GxffBg_cq_iVK2-2EOrx4SoD35xL1HCIFbFwa78GcfTj5g/exec';
+const SLIDE_MS = 30000;  // 30 seconds per slide
+const CELEB_MS = 5000;   // celebration duration
 
 // ── Demo data (shown until Sheet ID is set) ──────
 const DEMO = {
@@ -486,45 +486,25 @@ let agents=[], slideEls=[], cur=0;
 let progTimer=null, autoTimer=null, isPlaying=false;
 let confAnim=null;
 
-// ── Sheets fetch ───────────────────────────────
-async function getSheet(name){
-  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(name)}`;
-  const r=await fetch(url), t=await r.text();
-  return JSON.parse(t.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]).table;
-}
-function parseKV(tb){
-  const o={};
-  if(!tb?.rows) return o;
-  tb.rows.forEach(r=>{
-    const k=(r.c[0]?.v||'').toString().trim().toLowerCase().replace(/\s+/g,'_');
-    const v=(r.c[1]?.v||'').toString().trim();
-    if(k) o[k]=v;
-  });
-  return o;
-}
-function parseAgents(tb){
-  if(!tb?.rows) return[];
-  const h=tb.cols.map(c=>(c.label||'').trim().toLowerCase().replace(/\s+/g,'_').replace(/'/g,''));
-  return tb.rows.filter(r=>r.c&&r.c[0]?.v).map(r=>{
-    const o={}; h.forEach((k,i)=>o[k]=(r.c[i]?.v||'').toString().trim()); return o;
-  });
-}
+// ── API fetch (Google Apps Script Web App) ────────
 async function loadData(){
-  if(SHEET_ID==='YOUR_GOOGLE_SHEET_ID_HERE') return {s:DEMO.s, a:DEMO.a};
   try {
-    const [st,at]=await Promise.all([getSheet('settings'),getSheet('agents')]);
-    const raw=parseKV(st);
-    const s={
-      month:      raw.month_title||raw.month||'This Month',
-      department: raw.department||'',
-      company:    raw.company_name||raw.company||'In-Call Outsourcing',
-      logo:       raw.company_logo||raw.logo||'',
-      music_url:  raw.music_url||'',
-      music_name: raw.music_title||raw.music_name||'🎵 Now Playing',
+    const res  = await fetch(API_URL);
+    const json = await res.json();
+    // json = { settings:{...}, agents:[...] }
+    const raw = json.settings || {};
+    const s = {
+      month:      raw.month_title  || raw.month      || 'This Month',
+      department: raw.department   || '',
+      company:    raw.company_name || raw.company    || 'In-Call Outsourcing',
+      logo:       raw.company_logo || raw.logo       || '',
+      music_url:  raw.music_url    || '',
+      music_name: raw.music_title  || raw.music_name || '🎵 Now Playing',
     };
-    const a=parseAgents(at).sort((x,y)=>+x.rank-+y.rank);
-    return {s,a};
-  } catch(e){
+    const a = (json.agents || []).sort((x,y) => +x.rank - +y.rank);
+    return {s, a};
+  } catch(e) {
+    console.warn('API error, using demo data:', e);
     document.getElementById('errbanner').classList.add('show');
     return {s:DEMO.s, a:DEMO.a};
   }
