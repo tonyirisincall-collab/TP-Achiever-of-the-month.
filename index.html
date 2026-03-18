@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Honor Board — In-Call Outsourcing</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234F46E5'/%3E%3Cstop offset='100%25' stop-color='%23F59E0B'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Cpath d='M12 44 L20 20 L32 36 L44 16 L56 44 Z' fill='%23FCD34D' stroke='%23fff' stroke-width='1.5' stroke-linejoin='round'/%3E%3Crect x='10' y='44' width='44' height='8' rx='4' fill='%23FCD34D'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%234F46E5'/%3E%3Cstop offset='100%25' stop-color='%237C3AED'/%3E%3C/linearGradient%3E%3ClinearGradient id='gold' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%23FCD34D'/%3E%3Cstop offset='100%25' stop-color='%23D97706'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Ctext x='32' y='46' font-family='Georgia%2C serif' font-size='48' font-weight='900' fill='url(%23gold)' text-anchor='middle'%3E1%3C/text%3E%3Ctext x='20' y='20' font-family='Georgia%2C serif' font-size='14' font-weight='700' fill='%23FCD34D' text-anchor='middle'%3E%23%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -18,6 +18,7 @@
   --violet:#7C3AED;--violet2:#A78BFA;--violet-g:rgba(124,58,237,.18);--violet-s:rgba(124,58,237,.08);
   --rose2:#FB7185;--silver:#64748B;--silver2:#94A3B8;--bronze:#92400E;--bronze2:#B45309;
   --font-display:'Cinzel',serif;--font:'Outfit',sans-serif;
+  --track-h:48px;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html,body{width:100%;height:100%;overflow:hidden;}
@@ -25,9 +26,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 
 /* BACKGROUND CANVAS */
 #bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+#head-canvas{position:fixed;inset:0;z-index:1;pointer-events:none;}
 
-
-
+/* ── LOADING ── */
 #loading{position:fixed;inset:0;z-index:9999;background:#F0F4FF;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;transition:opacity .8s,visibility .8s;}
 #loading.hide{opacity:0;visibility:hidden;pointer-events:none;}
 .ld-scene{position:relative;width:110px;height:110px;}
@@ -40,6 +41,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 @keyframes lbPulse{0%,100%{opacity:.5}50%{opacity:1}}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* ── TOPBAR ── */
 #topbar{position:relative;z-index:50;flex-shrink:0;height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 36px;background:rgba(255,255,255,.88);backdrop-filter:blur(24px);border-bottom:1px solid var(--border2);box-shadow:0 1px 0 var(--border),0 4px 24px rgba(99,102,241,.07);}
 #topbar::after{content:'';position:absolute;bottom:-1px;left:8%;right:8%;height:2px;background:linear-gradient(90deg,transparent,var(--indigo),var(--gold2),var(--indigo),transparent);opacity:.4;}
 .tb-l{display:flex;align-items:center;gap:12px;}
@@ -48,39 +50,33 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .tb-co{font-size:.9rem;font-weight:700;color:var(--text);}
 .tb-tag{font-size:.56rem;color:var(--faint);margin-top:1px;}
 .tb-c{position:absolute;left:50%;transform:translateX(-50%);text-align:center;}
-.tb-honor{font-family:var(--font-display);font-size:1.08rem;font-weight:700;letter-spacing:.1em;background:linear-gradient(135deg,var(--indigo) 0%,var(--gold2) 50%,var(--indigo) 100%);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:hGrad 6s ease infinite;}
+.tb-honor{font-family:var(--font-display);font-size:1.75rem;font-weight:900;letter-spacing:.14em;background:linear-gradient(135deg,var(--indigo) 0%,var(--gold2) 50%,var(--indigo) 100%);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:hGrad 6s ease infinite;line-height:1;}
 @keyframes hGrad{0%,100%{background-position:0%}50%{background-position:100%}}
-.tb-dept{font-size:.58rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-top:2px;}
-.tb-r{opacity:0;pointer-events:none;}
-.live-d{width:5px;height:5px;border-radius:50%;background:#10B981;animation:blink 1.8s ease infinite;}
+.tb-r{display:flex;align-items:center;gap:8px;opacity:.8;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#10B981;animation:blink 1.8s ease infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+#tb-time{font-size:.62rem;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums;}
 
+/* ── ARENA ── */
 #arena{flex:1;position:relative;overflow:hidden;z-index:2;}
-.slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:22px 36px;opacity:0;transform:translateY(18px) scale(.97);transition:opacity .65s cubic-bezier(.4,0,.2,1),transform .65s cubic-bezier(.34,1.15,.64,1);pointer-events:none;}
+.slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:22px 36px;opacity:0;transform:translateY(18px) scale(.97);transition:opacity .55s cubic-bezier(.4,0,.2,1),transform .55s cubic-bezier(.34,1.15,.64,1);pointer-events:none;}
 .slide.active{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
 .slide.exit{opacity:0;transform:translateY(-18px) scale(.97);}
 
-.dept-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+/* ── DEPT HEADER ── */
+.dept-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
 .dept-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);}
-.dept-chip{font-family:var(--font-display);font-size:1.05rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:0;background:none;border:none;box-shadow:none;color:var(--indigo);white-space:nowrap;background:linear-gradient(135deg,var(--indigo),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.dept-sub-chip{font-size:.65rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-left:10px;}
+.dept-titles{text-align:center;}
+.dept-chip{font-family:var(--font-display);font-size:1.35rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;background:linear-gradient(135deg,var(--indigo),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block;line-height:1.1;}
+.dept-sub-chip{font-size:.62rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-top:3px;}
 
 .layout-2{display:flex;width:100%;max-width:1040px;flex-direction:column;}
 .row-2{display:grid;grid-template-columns:1.42fr 1fr;gap:20px;align-items:start;}
 .layout-3{display:flex;width:100%;max-width:1100px;flex-direction:column;}
 .row-3{display:grid;grid-template-columns:1.45fr 1fr 1fr;gap:18px;align-items:start;}
 
-/* Cards get glass effect so scene shows through subtly */
-.hero-card{
-  background:rgba(255,255,255,.90);
-  backdrop-filter:blur(20px);
-  border-radius:24px;border:1.5px solid var(--border2);
-  box-shadow:0 4px 6px rgba(79,70,229,.04),0 12px 40px rgba(79,70,229,.08),inset 0 1px 0 rgba(255,255,255,.9);
-  padding:28px 24px;display:flex;flex-direction:column;align-items:center;
-  position:relative;overflow:hidden;
-  animation:cardIn .75s cubic-bezier(.34,1.3,.64,1) both;
-  transition:transform .3s,box-shadow .3s;
-}
+/* ── HERO CARD ── */
+.hero-card{background:rgba(255,255,255,.90);backdrop-filter:blur(20px);border-radius:24px;border:1.5px solid var(--border2);box-shadow:0 4px 6px rgba(79,70,229,.04),0 12px 40px rgba(79,70,229,.08),inset 0 1px 0 rgba(255,255,255,.9);padding:28px 24px;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden;animation:cardIn .75s cubic-bezier(.34,1.3,.64,1) both;transition:transform .3s,box-shadow .3s;}
 .hero-card:hover{transform:translateY(-5px);box-shadow:0 8px 12px rgba(79,70,229,.06),0 24px 60px rgba(79,70,229,.14),0 0 0 1.5px var(--indigo-g);}
 .hero-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--indigo),var(--gold2),var(--teal),var(--indigo));background-size:200%;animation:barGrad 5s ease infinite;border-radius:24px 24px 0 0;}
 @keyframes barGrad{0%,100%{background-position:0%}50%{background-position:100%}}
@@ -110,28 +106,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .mcard{flex:1;min-width:76px;background:rgba(240,244,255,.85);border:1.5px solid var(--border2);border-radius:14px;padding:12px 14px;position:relative;overflow:hidden;transition:transform .22s,box-shadow .22s;}
 .mcard:hover{transform:translateY(-3px);}
 .mcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;}
-.mc-s::before{background:linear-gradient(90deg,var(--teal),var(--teal2));}
-.mc-s:hover{box-shadow:0 6px 20px var(--teal-g);}
-.mc-d::before{background:linear-gradient(90deg,var(--indigo),var(--indigo2));}
-.mc-d:hover{box-shadow:0 6px 20px var(--indigo-g);}
-.mc-t::before{background:linear-gradient(90deg,var(--violet),var(--violet2));}
-.mc-t:hover{box-shadow:0 6px 20px var(--violet-g);}
+.mc-s::before{background:linear-gradient(90deg,var(--teal),var(--teal2));}.mc-s:hover{box-shadow:0 6px 20px var(--teal-g);}
+.mc-d::before{background:linear-gradient(90deg,var(--indigo),var(--indigo2));}.mc-d:hover{box-shadow:0 6px 20px var(--indigo-g);}
+.mc-t::before{background:linear-gradient(90deg,var(--violet),var(--violet2));}.mc-t:hover{box-shadow:0 6px 20px var(--violet-g);}
 .mcard-label{font-size:.5rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-bottom:5px;}
 .mcard-val{font-family:var(--font-display);font-size:1.4rem;font-weight:700;line-height:1;}
-.mc-s .mcard-val{color:var(--teal);}
-.mc-d .mcard-val{color:var(--indigo);}
-.mc-t .mcard-val{color:var(--violet);}
+.mc-s .mcard-val{color:var(--teal);}.mc-d .mcard-val{color:var(--indigo);}.mc-t .mcard-val{color:var(--violet);}
 
-.compact-card{
-  background:rgba(255,255,255,.86);
-  backdrop-filter:blur(20px);
-  border-radius:18px;border:1.5px solid var(--border);
-  box-shadow:0 2px 4px rgba(79,70,229,.04),0 8px 28px rgba(79,70,229,.06);
-  padding:20px;display:flex;flex-direction:column;gap:14px;
-  position:relative;overflow:hidden;
-  animation:cardIn .75s cubic-bezier(.34,1.3,.64,1) both;
-  transition:transform .25s,box-shadow .25s;
-}
+/* ── COMPACT CARD ── */
+.compact-card{background:rgba(255,255,255,.86);backdrop-filter:blur(20px);border-radius:18px;border:1.5px solid var(--border);box-shadow:0 2px 4px rgba(79,70,229,.04),0 8px 28px rgba(79,70,229,.06);padding:20px;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden;animation:cardIn .75s cubic-bezier(.34,1.3,.64,1) both;transition:transform .25s,box-shadow .25s;}
 .compact-card:hover{transform:translateY(-3px);box-shadow:0 6px 8px rgba(79,70,229,.06),0 16px 40px rgba(79,70,229,.1);}
 .compact-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:18px 18px 0 0;}
 .cc-silver::before{background:linear-gradient(90deg,var(--silver),var(--silver2));}
@@ -150,23 +133,59 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .cc-pill{flex:1;min-width:64px;background:rgba(240,244,255,.85);border:1.5px solid var(--border2);border-radius:12px;padding:10px 12px;}
 .cc-pill-label{font-size:.48rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:4px;}
 .cc-pill-val{font-family:var(--font-display);font-size:1.15rem;font-weight:700;line-height:1;}
-.ccp-s .cc-pill-val{color:var(--teal);}
-.ccp-d .cc-pill-val{color:var(--indigo);}
-.ccp-t .cc-pill-val{color:var(--violet);}
+.ccp-s .cc-pill-val{color:var(--teal);}.ccp-d .cc-pill-val{color:var(--indigo);}.ccp-t .cc-pill-val{color:var(--violet);}
 
 @keyframes cardIn{from{opacity:0;transform:translateY(28px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 .hero-card{animation-delay:.04s;}
 .compact-card:nth-of-type(1){animation-delay:.16s;}
 .compact-card:nth-of-type(2){animation-delay:.28s;}
 
-#prog{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(79,70,229,.06);z-index:20;}
-#prog-fill{height:100%;width:0%;border-radius:0 3px 3px 0;background:linear-gradient(90deg,var(--indigo),var(--gold2),var(--teal),var(--indigo));background-size:300%;animation:pgShimmer 4s linear infinite;}
-@keyframes pgShimmer{0%{background-position:0%}100%{background-position:300%}}
+/* ── PROGRESS BAR ── */
 
+/* ── DOTS ── */
 #dots{flex-shrink:0;height:44px;z-index:10;display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(255,255,255,.88);backdrop-filter:blur(16px);border-top:1px solid var(--border2);}
 .dot{width:6px;height:6px;border-radius:100px;background:var(--faint);cursor:pointer;transition:background .3s,width .4s cubic-bezier(.34,1.3,.64,1),box-shadow .3s;}
 .dot.on{background:linear-gradient(90deg,var(--indigo),var(--gold2));width:26px;box-shadow:0 0 10px rgba(79,70,229,.3);}
 
+/* ══════════════════════════════════
+   WALKER TRACK — sits on top of dots bar
+══════════════════════════════════ */
+#walker-track{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  height:var(--track-h);
+  z-index:30;
+  pointer-events:none;
+  overflow:hidden;
+}
+
+/* The animated progress line that the walker "draws" */
+#track-line{
+  position:absolute;
+  bottom:22px;
+  left:0;
+  height:2px;
+  width:0%;
+  background:linear-gradient(90deg,var(--indigo),var(--gold2),var(--teal));
+  border-radius:0 2px 2px 0;
+  box-shadow:0 0 6px rgba(79,70,229,.4);
+  transition:width .06s linear;
+}
+
+
+/* The Walker character SVG */
+#walker-char{
+  position:absolute;
+  bottom:0;
+  left:0;
+  width:52px;
+  height:var(--track-h);
+  will-change:left;
+}
+
+/* ── CELEBRATION ── */
 #celeb{position:fixed;inset:0;z-index:800;display:none;align-items:center;justify-content:center;background:rgba(15,17,51,.5);backdrop-filter:blur(14px);}
 #celeb.show{display:flex;}
 #confetti{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
@@ -182,27 +201,17 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .celeb-name{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;background:linear-gradient(135deg,var(--indigo),var(--gold2),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.05;}
 .celeb-label{font-size:.78rem;color:var(--muted);font-weight:400;margin-top:10px;letter-spacing:.05em;}
 
+/* ── ANNOUNCEMENT ── */
 #announce{position:fixed;inset:0;z-index:700;display:none;align-items:center;justify-content:center;pointer-events:none;}
 #announce.show{display:flex;}
-.ann-box{
-  background:rgba(255,255,255,.97);color:var(--text);
-  border:2px solid var(--indigo);border-radius:20px;
-  padding:22px 40px;font-size:1.1rem;font-weight:700;
-  box-shadow:0 0 0 8px rgba(79,70,229,.1),0 0 0 16px rgba(79,70,229,.05),0 24px 60px rgba(79,70,229,.2);
-  animation:annPop .65s cubic-bezier(.34,1.9,.64,1) both;
-  max-width:600px;text-align:center;line-height:1.5;
-}
-@keyframes annPop{
-  0%{opacity:0;transform:scale(.2) rotate(-12deg);}
-  55%{opacity:1;transform:scale(1.1) rotate(2deg);}
-  75%{transform:scale(.96) rotate(-1deg);}
-  100%{transform:scale(1) rotate(0deg);}
-}
+.ann-box{background:rgba(255,255,255,.97);color:var(--text);border:2px solid var(--indigo);border-radius:20px;padding:22px 40px;font-size:1.1rem;font-weight:700;box-shadow:0 0 0 8px rgba(79,70,229,.1),0 0 0 16px rgba(79,70,229,.05),0 24px 60px rgba(79,70,229,.2);animation:annPop .65s cubic-bezier(.34,1.9,.64,1) both;max-width:600px;text-align:center;line-height:1.5;}
+@keyframes annPop{0%{opacity:0;transform:scale(.2) rotate(-12deg);}55%{opacity:1;transform:scale(1.1) rotate(2deg);}75%{transform:scale(.96) rotate(-1deg);}100%{transform:scale(1) rotate(0deg);}}
 .ann-box.out{animation:annOut .4s ease both;}
 @keyframes annOut{to{opacity:0;transform:scale(.8) rotate(6deg);}}
 
-#music{position:fixed;bottom:52px;right:22px;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border:1.5px solid var(--border2);border-radius:14px;padding:10px 14px;display:none;align-items:center;gap:10px;box-shadow:0 4px 24px rgba(79,70,229,.1);min-width:185px;}
-.mus-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--border2);background:var(--indigo-s);color:var(--indigo);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.78rem;transition:background .2s,color .2s;flex-shrink:0;}
+/* ── MUSIC ── */
+#music{position:fixed;bottom:calc(var(--track-h) + 8px);right:22px;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border:1.5px solid var(--border2);border-radius:14px;padding:10px 14px;display:none;align-items:center;gap:10px;box-shadow:0 4px 24px rgba(79,70,229,.1);min-width:185px;}
+.mus-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--border2);background:var(--indigo-s);color:var(--indigo);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.78rem;transition:background .2s,color .2s;flex-shrink:0;pointer-events:auto;}
 .mus-btn:hover{background:var(--indigo);color:#fff;}
 .mus-info{flex:1;min-width:0;}
 .mus-t{font-size:.68rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
@@ -216,15 +225,25 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 #errbanner{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:rgba(254,242,242,.95);border:1px solid rgba(248,113,113,.35);color:#DC2626;padding:6px 16px;border-radius:10px;font-size:.7rem;display:none;z-index:200;white-space:nowrap;backdrop-filter:blur(8px);}
 #errbanner.show{display:block;}
 
-@media(max-width:860px){.row-2,.row-3{grid-template-columns:1fr;}.slide{padding:14px 16px;}#topbar{padding:0 18px;}.tb-c{display:none;}.hero-photo-frame{width:130px;height:130px;}}
+@media(max-width:860px){
+  .row-2,.row-3{grid-template-columns:1fr;}
+  .slide{padding:14px 16px;}
+  #topbar{padding:0 18px;}
+  .tb-c{display:none;}
+  .hero-photo-frame{width:130px;height:130px;}
+}
 </style>
 </head>
 <body>
 
 <canvas id="bg-canvas"></canvas>
+<canvas id="head-canvas"></canvas>
 
 <div id="loading">
-  <div class="ld-scene"><div class="ld-r1"></div><div class="ld-r2"></div><div class="ld-r3"></div><div class="ld-core"><img src="data:image/jpeg;base64,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" alt="logo"></div></div>
+  <div class="ld-scene">
+    <div class="ld-r1"></div><div class="ld-r2"></div><div class="ld-r3"></div>
+    <div class="ld-core"><img src="data:image/jpeg;base64,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" alt="logo"></div>
+  </div>
   <div class="ld-label">Honor Board</div>
 </div>
 
@@ -251,15 +270,68 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 
 <div id="topbar">
   <div class="tb-l">
-    <div class="tb-logo-wrap"><img src="data:image/jpeg;base64,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" id="tb-logo" alt="logo"></div>
+    <div class="tb-logo-wrap"><img src="data:image/jpeg;base64,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" id="tb-logo" alt="logo"></div>
     <div><div class="tb-co" id="tb-co">In-Call Outsourcing</div><div class="tb-tag">Your Efforts Are Always Appreciated</div></div>
   </div>
-  <div class="tb-c"><div class="tb-honor">Honor Board</div><div class="tb-dept" id="tb-dept">Loading...</div></div>
-  <div class="tb-r"><div class="live-pip"><div class="live-d"></div></div><div id="tb-time" style="font-size:.55rem;color:var(--faint);"></div></div>
+  <div class="tb-c"><div class="tb-honor">Honor Board</div></div>
+  <div class="tb-r"><div class="live-dot"></div><div id="tb-time" style="display:none;"></div></div>
 </div>
 
-<div id="arena"><div id="prog"><div id="prog-fill"></div></div></div>
+<div id="arena">
+</div>
 <div id="dots"></div>
+
+<!-- ══ WALKER TRACK ══ -->
+<div id="walker-track">
+  <div id="track-line"></div>
+  <div id="walker-char">
+    <svg id="walker-svg" viewBox="0 0 60 52" xmlns="http://www.w3.org/2000/svg" style="width:60px;height:52px;overflow:visible;">
+      <!-- Shadow -->
+      <ellipse id="wk-shadow" cx="30" cy="50" rx="12" ry="3" fill="rgba(79,70,229,.15)"/>
+      <!-- Left leg -->
+      <line id="wk-ll" x1="24" y1="38" x2="18" y2="50" stroke="#4F46E5" stroke-width="3.5" stroke-linecap="round"/>
+      <!-- Right leg -->
+      <line id="wk-rl" x1="30" y1="38" x2="36" y2="50" stroke="#4F46E5" stroke-width="3.5" stroke-linecap="round"/>
+      <!-- Body -->
+      <ellipse cx="27" cy="32" rx="11" ry="8" fill="url(#bodyGrad)" />
+      <!-- Left arm -->
+      <line id="wk-la" x1="17" y1="28" x2="12" y2="38" stroke="#818CF8" stroke-width="3" stroke-linecap="round"/>
+      <!-- Right arm -->
+      <line id="wk-ra" x1="37" y1="28" x2="42" y2="38" stroke="#818CF8" stroke-width="3" stroke-linecap="round"/>
+      <!-- Neck -->
+      <line x1="27" y1="24" x2="27" y2="27" stroke="#E0E7FF" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- Head -->
+      <circle id="wk-head" cx="27" cy="20" r="10" fill="url(#headGrad)" />
+      <!-- Eyes -->
+      <circle cx="24" cy="19" r="2.2" fill="white"/>
+      <circle cx="30" cy="19" r="2.2" fill="white"/>
+      <circle id="wk-pupil-l" cx="24.6" cy="19.4" r="1.1" fill="#1E1B4B"/>
+      <circle id="wk-pupil-r" cx="30.6" cy="19.4" r="1.1" fill="#1E1B4B"/>
+      <!-- Smile -->
+      <path d="M23.5 22.5 Q27 25 30.5 22.5" stroke="#4F46E5" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <!-- Hair tuft -->
+      <path d="M22 12 Q27 8 32 12" stroke="#92400E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+      <!-- Flag/Trophy held in right arm when reaching end -->
+      <g id="wk-trophy" opacity="0">
+        <circle cx="42" cy="32" r="5" fill="none" stroke="#F59E0B" stroke-width="1.5"/>
+        <path d="M39 35 L42 27 L45 35" stroke="#F59E0B" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <line x1="42" y1="37" x2="42" y2="41" stroke="#F59E0B" stroke-width="1.5"/>
+      </g>
+
+      <defs>
+        <linearGradient id="bodyGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#818CF8"/>
+          <stop offset="100%" stop-color="#4F46E5"/>
+        </linearGradient>
+        <radialGradient id="headGrad" cx="40%" cy="35%">
+          <stop offset="0%" stop-color="#A5B4FC"/>
+          <stop offset="100%" stop-color="#6366F1"/>
+        </radialGradient>
+      </defs>
+    </svg>
+  </div>
+</div>
 
 <script>
 /* ══════════════════════════════════════════
@@ -276,8 +348,7 @@ const ANN_MS   = 15000;
 const DEMO = {
   settings:{
     month_title:'March 2025', company_name:'In-Call Outsourcing',
-    music_url:'', music_title:'Team Vibes',
-    message:'',
+    music_url:'', music_title:'Team Vibes', message:'',
     sr_chaser_1_name:'Ahmed Hassan',   sr_chaser_1_role:'SR Top Chaser', sr_chaser_1_img:'',  sr_chaser_1_sales:'',  sr_chaser_1_dos:'124',  sr_chaser_1_tasks:'',
     sr_chaser_2_name:'Sara Mohamed',   sr_chaser_2_role:'SR Chaser',     sr_chaser_2_img:'',  sr_chaser_2_sales:'',  sr_chaser_2_dos:'98',   sr_chaser_2_tasks:'',
     chaser_1_name:'Khaled Youssef',    chaser_1_role:'Top Chaser',       chaser_1_img:'',     chaser_1_sales:'',     chaser_1_dos:'',        chaser_1_tasks:'52',
@@ -285,9 +356,9 @@ const DEMO = {
     chaser_3_name:'Dina Fathy',        chaser_3_role:'Chaser',           chaser_3_img:'',     chaser_3_sales:'',     chaser_3_dos:'',        chaser_3_tasks:'31',
     oc_1_name:'Youssef Adel',          oc_1_role:'Top Opener-Closer',    oc_1_img:'',         oc_1_sales:'18,400',  oc_1_dos:'',            oc_1_tasks:'',
     oc_2_name:'Hana Tarek',            oc_2_role:'Opener-Closer',        oc_2_img:'',         oc_2_sales:'14,200',  oc_2_dos:'',            oc_2_tasks:'',
-    opener_1_name:'Rami Saad',         opener_1_role:'Top Opener',       opener_1_img:'',     opener_1_sales:'22,100',opener_1_dos:'',       opener_1_tasks:'',
-    opener_2_name:'Laila Mahmoud',     opener_2_role:'Opener',           opener_2_img:'',     opener_2_sales:'17,800',opener_2_dos:'',       opener_2_tasks:'',
-    opener_3_name:'Tarek Farouk',      opener_3_role:'Opener',           opener_3_img:'',     opener_3_sales:'14,500',opener_3_dos:'',       opener_3_tasks:'',
+    opener_1_name:'Rami Saad',         opener_1_role:'Top Opener',       opener_1_img:'',     opener_1_sales:'22,100', opener_1_dos:'',      opener_1_tasks:'',
+    opener_2_name:'Laila Mahmoud',     opener_2_role:'Opener',           opener_2_img:'',     opener_2_sales:'17,800', opener_2_dos:'',      opener_2_tasks:'',
+    opener_3_name:'Tarek Farouk',      opener_3_role:'Opener',           opener_3_img:'',     opener_3_sales:'14,500', opener_3_dos:'',      opener_3_tasks:'',
   }
 };
 
@@ -316,9 +387,7 @@ async function loadData(){
    HELPERS
 ══════════════════════════════════════════ */
 const INI=n=>(n||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-
 function get(d,k){return(d[k]||'').toString().trim();}
-
 function metrics(d,prefix){
   const m=[];
   const s=get(d,prefix+'sales'),do_=get(d,prefix+'dos'),t=get(d,prefix+'tasks');
@@ -327,37 +396,22 @@ function metrics(d,prefix){
   if(t) m.push({l:'Tasks',v:t,t:'t'});
   return m;
 }
-
-function photoEl(url,name,size=160){
+function photoEl(url,name){
   if(url&&url.startsWith('http'))
     return`<img src="${url}" alt="${name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.outerHTML='<span class=hero-initials>${INI(name)}</span>'">`;
   return`<span class="hero-initials">${INI(name)}</span>`;
 }
-
-function mcards(ms){
-  return ms.map(m=>`<div class="mcard mc-${m.t}"><div class="mcard-label">${m.l}</div><div class="mcard-val">${m.v}</div></div>`).join('');
-}
-function ccPills(ms){
-  return ms.map(m=>`<div class="cc-pill ccp-${m.t}"><div class="cc-pill-label">${m.l}</div><div class="cc-pill-val">${m.v}</div></div>`).join('');
-}
-
+function mcards(ms){return ms.map(m=>`<div class="mcard mc-${m.t}"><div class="mcard-label">${m.l}</div><div class="mcard-val">${m.v}</div></div>`).join('');}
+function ccPills(ms){return ms.map(m=>`<div class="cc-pill ccp-${m.t}"><div class="cc-pill-label">${m.l}</div><div class="cc-pill-val">${m.v}</div></div>`).join('');}
 function rankTag(rank){
   const map={1:['rt-gold','No.1'],2:['rt-silver','No.2'],3:['rt-bronze','No.3'],4:['rt-blue','No.4'],5:['rt-blue','No.5']};
   const [cls,label]=map[rank]||['rt-blue',`No.${rank}`];
   return`<div class="rank-tag ${cls}"><div class="rank-dot"></div>${label}</div>`;
 }
-
-function heroCard(d,prefix,rank,deptClass='hc-gold',delay=0){
-  const name=get(d,prefix+'name');
-  const role=get(d,prefix+'role');
-  const img=get(d,prefix+'img')||get(d,prefix+'image_url');
-  const comment=get(d,prefix+'comment');
-  const ms=metrics(d,prefix);
-  return`<div class="hero-card ${deptClass}" style="animation-delay:${delay}s">
-    <div class="hero-photo-frame">
-      <div class="hpf-ring"></div>
-      <div class="hpf-inner">${photoEl(img,name)}</div>
-    </div>
+function heroCard(d,prefix,rank,delay=0){
+  const name=get(d,prefix+'name'),role=get(d,prefix+'role'),img=get(d,prefix+'img')||get(d,prefix+'image_url'),comment=get(d,prefix+'comment'),ms=metrics(d,prefix);
+  return`<div class="hero-card" style="animation-delay:${delay}s">
+    <div class="hero-photo-frame"><div class="hpf-ring"></div><div class="hpf-inner">${photoEl(img,name)}</div></div>
     ${rankTag(rank)}
     <div class="hero-name">${name||'—'}</div>
     ${role?`<div class="hero-role">${role}</div>`:''}
@@ -365,42 +419,28 @@ function heroCard(d,prefix,rank,deptClass='hc-gold',delay=0){
     ${ms.length?`<div class="hero-metrics">${mcards(ms)}</div>`:''}
   </div>`;
 }
-
 function compactCard(d,prefix,rank,ccCls,delay=0){
-  const name=get(d,prefix+'name');
-  const role=get(d,prefix+'role');
-  const img=get(d,prefix+'img')||get(d,prefix+'image_url');
-  const ms=metrics(d,prefix);
-  const av=img&&img.startsWith('http')
-    ?`<img src="${img}" alt="${name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.textContent='${INI(name)}'">`
-    :INI(name);
+  const name=get(d,prefix+'name'),role=get(d,prefix+'role'),img=get(d,prefix+'img')||get(d,prefix+'image_url'),ms=metrics(d,prefix);
+  const av=img&&img.startsWith('http')?`<img src="${img}" alt="${name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.textContent='${INI(name)}'">`:INI(name);
   return`<div class="compact-card ${ccCls}" style="animation-delay:${delay}s">
-    <div class="cc-top">
-      <div class="cc-avatar">${av}</div>
-      <div class="cc-info">
-        ${rankTag(rank)}
-        <div class="cc-name">${name||'—'}</div>
-        ${role?`<div class="cc-role">${role}</div>`:''}
-      </div>
-    </div>
+    <div class="cc-top"><div class="cc-avatar">${av}</div>
+    <div class="cc-info">${rankTag(rank)}<div class="cc-name">${name||'—'}</div>${role?`<div class="cc-role">${role}</div>`:''}</div></div>
     ${ms.length?`<div class="cc-metrics">${ccPills(ms)}</div>`:''}
   </div>`;
 }
-
-function deptHeader(label,month){
-  // Clean the month — strip full Date strings, keep only readable text
-  let cleanMonth = month||'This Month';
-  // If it looks like a Date string (has GMT or day-of-week), try to extract just Month Year
-  if(cleanMonth.includes('GMT') || cleanMonth.match(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/)){
-    try {
-      const d = new Date(cleanMonth);
-      if(!isNaN(d)) cleanMonth = d.toLocaleDateString('en-US',{month:'long',year:'numeric'});
-    } catch(e) { cleanMonth = 'This Month'; }
+function cleanDate(raw){
+  if(!raw) return 'This Month';
+  let s=raw.toString().trim();
+  if(s.includes('GMT')||/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/.test(s)){
+    try{const d=new Date(s);if(!isNaN(d))return d.toLocaleDateString('en-US',{month:'long',year:'numeric'});}catch(e){}
+    return 'This Month';
   }
+  return s;
+}
+function deptHeader(label,month){
   return`<div class="dept-header">
     <div class="dept-line"></div>
-    <div class="dept-chip">${label}</div>
-    <div class="dept-sub-chip">${cleanMonth}</div>
+    <div class="dept-titles"><div class="dept-chip">${label}</div><div class="dept-sub-chip">${cleanDate(month)}</div></div>
     <div class="dept-line"></div>
   </div>`;
 }
@@ -412,60 +452,23 @@ function buildSlides(d){
   const arena=document.getElementById('arena');
   arena.querySelectorAll('.slide').forEach(s=>s.remove());
   slideEls=[];
-
   const month=get(d,'month_title')||'This Month';
   const prog=document.getElementById('prog');
-
-  /* ── Slide 1: SR Chaser ── */
-  const s1=document.createElement('div'); s1.className='slide';
-  s1.innerHTML=`
-    <div class="layout-2">
-      ${deptHeader('SR Chaser Top Achievers',month)}
-      <div class="row-2">
-        ${heroCard(d,'sr_chaser_1_',1,'hc-gold',0)}
-        ${compactCard(d,'sr_chaser_2_',2,'cc-silver',.15)}
-      </div>
-    </div>`;
-  arena.insertBefore(s1,prog); slideEls.push(s1);
-
-  /* ── Slide 2: Chaser ── */
-  const s2=document.createElement('div'); s2.className='slide';
-  s2.innerHTML=`
-    <div class="layout-3">
-      ${deptHeader('Chaser Top Achievers',month)}
-      <div class="row-3">
-        ${heroCard(d,'chaser_1_',1,'hc-gold',0)}
-        ${compactCard(d,'chaser_2_',2,'cc-silver',.15)}
-        ${compactCard(d,'chaser_3_',3,'cc-bronze',.28)}
-      </div>
-    </div>`;
-  arena.insertBefore(s2,prog); slideEls.push(s2);
-
-  /* ── Slide 3: Opener-Closer ── */
-  const s3=document.createElement('div'); s3.className='slide';
-  s3.innerHTML=`
-    <div class="layout-2">
-      ${deptHeader('Opener-Closer Top Achievers',month)}
-      <div class="row-2">
-        ${heroCard(d,'oc_1_',1,'hc-gold',0)}
-        ${compactCard(d,'oc_2_',2,'cc-silver',.15)}
-      </div>
-    </div>`;
-  arena.insertBefore(s3,prog); slideEls.push(s3);
-
-  /* ── Slide 4: Opener ── */
-  const s4=document.createElement('div'); s4.className='slide';
-  s4.innerHTML=`
-    <div class="layout-3">
-      ${deptHeader('Opener Top Achievers',month)}
-      <div class="row-3">
-        ${heroCard(d,'opener_1_',1,'hc-gold',0)}
-        ${compactCard(d,'opener_2_',2,'cc-silver',.15)}
-        ${compactCard(d,'opener_3_',3,'cc-bronze',.28)}
-      </div>
-    </div>`;
-  arena.insertBefore(s4,prog); slideEls.push(s4);
-
+  const defs=[
+    {label:'SR Chaser Top Achievers',layout:'2',h1:'sr_chaser_1_',h2:'sr_chaser_2_',cc2:'cc-silver'},
+    {label:'Chaser Top Achievers',layout:'3',h1:'chaser_1_',h2:'chaser_2_',cc2:'cc-silver',h3:'chaser_3_',cc3:'cc-bronze'},
+    {label:'Opener-Closer Top Achievers',layout:'2',h1:'oc_1_',h2:'oc_2_',cc2:'cc-silver'},
+    {label:'Opener Top Achievers',layout:'3',h1:'opener_1_',h2:'opener_2_',cc2:'cc-silver',h3:'opener_3_',cc3:'cc-bronze'},
+  ];
+  defs.forEach(def=>{
+    const s=document.createElement('div'); s.className='slide';
+    if(def.layout==='2'){
+      s.innerHTML=`<div class="layout-2">${deptHeader(def.label,month)}<div class="row-2">${heroCard(d,def.h1,1,0)}${compactCard(d,def.h2,2,def.cc2,.15)}</div></div>`;
+    } else {
+      s.innerHTML=`<div class="layout-3">${deptHeader(def.label,month)}<div class="row-3">${heroCard(d,def.h1,1,0)}${compactCard(d,def.h2,2,def.cc2,.15)}${compactCard(d,def.h3,3,def.cc3,.28)}</div></div>`;
+    }
+    arena.insertBefore(s,prog); slideEls.push(s);
+  });
   buildDots();
 }
 
@@ -483,50 +486,127 @@ function buildDots(){
     bar.appendChild(d);
   });
 }
-
 function goTo(idx,manual=false){
   if(!slideEls.length)return;
   idx=((idx%slideEls.length)+slideEls.length)%slideEls.length;
   if(slideEls[cur]){slideEls[cur].classList.remove('active');slideEls[cur].classList.add('exit');}
-  const prev=cur; cur=idx;
-  const fire=!manual && cur===0 && prev!==0;
-  if(fire){showCeleb(); setTimeout(activate,CELEB_MS);}
-  else setTimeout(activate,50);
+  cur=idx;
+  // Show celebration for No.1 on every slide transition
+  showCeleb(cur);
+  setTimeout(activate, CELEB_MS);
   startProg();
   document.querySelectorAll('#dots .dot').forEach((d,i)=>d.classList.toggle('on',i===cur));
 }
 function activate(){
   slideEls.forEach((s,i)=>{s.classList.remove('active','exit');if(i===cur)s.classList.add('active');});
 }
-function startAuto(){
-  clearTimeout(autoTimer);
-  autoTimer=setTimeout(()=>{goTo(cur+1);startAuto();},SLIDE_MS);
-}
+function startAuto(){clearTimeout(autoTimer);autoTimer=setTimeout(()=>{goTo(cur+1);startAuto();},SLIDE_MS);}
 function resetAuto(){clearTimeout(autoTimer);startAuto();}
 
 /* ══════════════════════════════════════════
-   PROGRESS
+   PROGRESS BAR + WALKER SYNC
 ══════════════════════════════════════════ */
+let progPct = 0;
 function startProg(){
   clearInterval(progTimer);
-  const fill=document.getElementById('prog-fill');
-  fill.style.width='0%';
+  progPct=0;
   const t0=Date.now();
   progTimer=setInterval(()=>{
     const p=Math.min(100,(Date.now()-t0)/SLIDE_MS*100);
-    fill.style.width=p+'%';
+    progPct=p;
     if(p>=100){clearInterval(progTimer);goTo(cur+1);startAuto();}
   },60);
 }
 
 /* ══════════════════════════════════════════
+   WALKER — walks the progress track line
+══════════════════════════════════════════ */
+(function(){
+  const trackLine = document.getElementById('track-line');
+  const walkerChar = document.getElementById('walker-char');
+  const wkTrophy  = document.getElementById('wk-trophy');
+  const wkLL = document.getElementById('wk-ll');
+  const wkRL = document.getElementById('wk-rl');
+  const wkLA = document.getElementById('wk-la');
+  const wkRA = document.getElementById('wk-ra');
+  const wkHead = document.getElementById('wk-head');
+  const wkShadow = document.getElementById('wk-shadow');
+
+  let frame = 0;
+  let atEnd = false;
+
+  function lerp(a,b,t){return a+(b-a)*t;}
+  function easeInOut(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
+
+  function animWalker(){
+    frame++;
+
+    // pct from global progPct
+    const pct = Math.min(progPct,99.8);
+    const trackW = window.innerWidth;
+    const charW  = 60;
+    const margin = 10;
+    const xPos   = margin + (pct/100) * (trackW - charW - margin*2);
+
+    // Update track line width to match walker position
+    const lineW = xPos + charW/2;
+    trackLine.style.width = lineW + 'px';
+
+    // Move walker
+    walkerChar.style.left = xPos + 'px';
+
+    // Check if reached end
+    const newAtEnd = pct >= 97;
+    if(newAtEnd !== atEnd){
+      atEnd = newAtEnd;
+      wkTrophy.style.opacity = atEnd ? '1' : '0';
+    }
+
+    // Walking animation — leg swing
+    const speed = 8;
+    const legSwing = Math.sin(frame * 0.18) * 10;
+    const armSwing = Math.sin(frame * 0.18 + Math.PI) * 10;
+    const bob      = Math.sin(frame * 0.18) * 1.5;
+
+    // Left leg
+    wkLL.setAttribute('x2', 18 + legSwing * 0.5);
+    wkLL.setAttribute('y2', 50 + Math.abs(legSwing) * 0.08);
+    // Right leg (opposite phase)
+    wkRL.setAttribute('x2', 36 - legSwing * 0.5);
+    wkRL.setAttribute('y2', 50 + Math.abs(-legSwing) * 0.08);
+    // Left arm (opposite to left leg)
+    wkLA.setAttribute('x2', 12 - armSwing * 0.4);
+    wkLA.setAttribute('y2', 38 - Math.abs(armSwing) * 0.1);
+    // Right arm
+    wkRA.setAttribute('x2', 42 + armSwing * 0.4);
+    wkRA.setAttribute('y2', 38 - Math.abs(-armSwing) * 0.1);
+    // Head bob
+    wkHead.setAttribute('cy', 20 + bob);
+    // Shadow scale with bob
+    const shadowScale = 0.85 + Math.abs(Math.sin(frame * 0.18)) * 0.15;
+    wkShadow.setAttribute('rx', 12 * shadowScale);
+
+    requestAnimationFrame(animWalker);
+  }
+
+  animWalker();
+})();
+
+/* ══════════════════════════════════════════
    CELEBRATION
 ══════════════════════════════════════════ */
-function showCeleb(){
+const SLIDE_META=[
+  {dept:'SR Chaser',nameKey:'sr_chaser_1_name'},
+  {dept:'Chaser',nameKey:'chaser_1_name'},
+  {dept:'Opener-Closer',nameKey:'oc_1_name'},
+  {dept:'Opener',nameKey:'opener_1_name'},
+];
+function showCeleb(slideIdx){
   const d=DATA;
-  const name=get(d,'sr_chaser_1_name')||'Top Achiever';
+  const meta=SLIDE_META[slideIdx]||SLIDE_META[0];
+  const name=get(d,meta.nameKey)||'Top Achiever';
   const month=get(d,'month_title')||'This Month';
-  document.getElementById('celeb-dept').textContent='SR Chaser — '+month;
+  document.getElementById('celeb-dept').textContent=meta.dept+' — '+month;
   document.getElementById('celeb-name').textContent=name;
   document.getElementById('celeb-label').textContent='No.1 Achiever of the Month';
   const box=document.getElementById('celeb-card');
@@ -541,14 +621,11 @@ function showCeleb(){
 }
 
 /* ══════════════════════════════════════════
-   ANNOUNCEMENT (message field → banner)
+   ANNOUNCEMENT
 ══════════════════════════════════════════ */
 function checkAnnouncement(d){
   const msg=get(d,'message');
-  if(msg && msg!==lastMsg){
-    lastMsg=msg;
-    showAnnouncement(msg);
-  }
+  if(msg&&msg!==lastMsg){lastMsg=msg;showAnnouncement(msg);}
 }
 function showAnnouncement(msg){
   const ann=document.getElementById('announce');
@@ -556,26 +633,20 @@ function showAnnouncement(msg){
   box.classList.remove('out');
   box.textContent=msg;
   ann.classList.add('show');
-  // play a chime
   playChime();
-  setTimeout(()=>{
-    box.classList.add('out');
-    setTimeout(()=>ann.classList.remove('show'),400);
-  },ANN_MS-400);
+  setTimeout(()=>{box.classList.add('out');setTimeout(()=>ann.classList.remove('show'),400);},ANN_MS-400);
 }
 function playChime(){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
     [880,1100,1320].forEach((f,i)=>{
-      const osc=ctx.createOscillator();
-      const gain=ctx.createGain();
+      const osc=ctx.createOscillator(),gain=ctx.createGain();
       osc.connect(gain);gain.connect(ctx.destination);
       osc.frequency.value=f;osc.type='sine';
       gain.gain.setValueAtTime(0,ctx.currentTime+i*.18);
       gain.gain.linearRampToValueAtTime(.22,ctx.currentTime+i*.18+.04);
       gain.gain.linearRampToValueAtTime(0,ctx.currentTime+i*.18+.6);
-      osc.start(ctx.currentTime+i*.18);
-      osc.stop(ctx.currentTime+i*.18+.7);
+      osc.start(ctx.currentTime+i*.18);osc.stop(ctx.currentTime+i*.18+.7);
     });
   }catch(e){}
 }
@@ -588,30 +659,15 @@ function launchConfetti(){
   const ctx=cvs.getContext('2d');
   cvs.width=window.innerWidth;cvs.height=window.innerHeight;
   const cols=['#1E40AF','#92400E','#D97706','#065F46','#4C1D95','#9F1239','#fff','#FBBF24'];
-  const bits=Array.from({length:160},()=>({
-    x:Math.random()*cvs.width,y:Math.random()*-cvs.height,
-    w:5+Math.random()*9,h:3+Math.random()*5,
-    c:cols[Math.floor(Math.random()*cols.length)],
-    vx:(Math.random()-.5)*3.5,vy:2+Math.random()*4,
-    r:Math.random()*Math.PI*2,vr:(Math.random()-.5)*.14,
-  }));
+  const bits=Array.from({length:160},()=>({x:Math.random()*cvs.width,y:Math.random()*-cvs.height,w:5+Math.random()*9,h:3+Math.random()*5,c:cols[Math.floor(Math.random()*cols.length)],vx:(Math.random()-.5)*3.5,vy:2+Math.random()*4,r:Math.random()*Math.PI*2,vr:(Math.random()-.5)*.14}));
   function draw(){
     ctx.clearRect(0,0,cvs.width,cvs.height);
-    bits.forEach(b=>{
-      ctx.save();ctx.translate(b.x,b.y);ctx.rotate(b.r);
-      ctx.fillStyle=b.c;ctx.fillRect(-b.w/2,-b.h/2,b.w,b.h);ctx.restore();
-      b.x+=b.vx;b.y+=b.vy;b.r+=b.vr;
-      if(b.y>cvs.height){b.y=-20;b.x=Math.random()*cvs.width;}
-    });
+    bits.forEach(b=>{ctx.save();ctx.translate(b.x,b.y);ctx.rotate(b.r);ctx.fillStyle=b.c;ctx.fillRect(-b.w/2,-b.h/2,b.w,b.h);ctx.restore();b.x+=b.vx;b.y+=b.vy;b.r+=b.vr;if(b.y>cvs.height){b.y=-20;b.x=Math.random()*cvs.width;}});
     confAnim=requestAnimationFrame(draw);
   }
   draw();
 }
-function stopConfetti(){
-  cancelAnimationFrame(confAnim);
-  const c=document.getElementById('confetti');
-  c.getContext('2d').clearRect(0,0,c.width,c.height);
-}
+function stopConfetti(){cancelAnimationFrame(confAnim);const c=document.getElementById('confetti');c.getContext('2d').clearRect(0,0,c.width,c.height);}
 
 /* ══════════════════════════════════════════
    MUSIC
@@ -635,26 +691,17 @@ document.addEventListener('keydown',e=>{
 });
 let tx=0;
 document.getElementById('arena').addEventListener('touchstart',e=>tx=e.touches[0].clientX);
-document.getElementById('arena').addEventListener('touchend',e=>{
-  const dx=e.changedTouches[0].clientX-tx;
-  if(Math.abs(dx)>50){goTo(dx<0?cur+1:cur-1,true);resetAuto();}
-});
+document.getElementById('arena').addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50){goTo(dx<0?cur+1:cur-1,true);resetAuto();}});
 
 /* ══════════════════════════════════════════
    RENDER
 ══════════════════════════════════════════ */
 function render(d){
   DATA=d;
-  const co=get(d,'company_name')||'In-Call Outsourcing';
-  const month=get(d,'month_title')||'This Month';
-  document.getElementById('tb-co').textContent=co;
-  document.getElementById('tb-dept').textContent=month;
+  document.getElementById('tb-co').textContent=get(d,'company_name')||'In-Call Outsourcing';
   document.getElementById('tb-time').textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-
   const logo=get(d,'company_logo');
-  if(logo&&logo.startsWith('http')){
-    document.getElementById('tb-logo').src=logo;
-  }
+  if(logo&&logo.startsWith('http'))document.getElementById('tb-logo').src=logo;
   const murl=get(d,'music_url');
   if(murl&&murl.startsWith('http')){
     const aud=document.getElementById('bgaudio');
@@ -662,13 +709,181 @@ function render(d){
     document.getElementById('mus-t').textContent=get(d,'music_title')||'Now Playing';
     document.getElementById('music').style.display='flex';
   }
-
   checkAnnouncement(d);
   buildSlides(d);
-  setTimeout(()=>{activate();document.querySelectorAll('#dots .dot').forEach((d,i)=>d.classList.toggle('on',i===0));},80);
+  setTimeout(()=>{
+    showCeleb(0);
+    setTimeout(()=>{
+      activate();
+      document.querySelectorAll('#dots .dot').forEach((dd,i)=>dd.classList.toggle('on',i===0));
+    }, CELEB_MS);
+  },80);
   startProg();
   startAuto();
 }
+
+/* ══════════════════════════════════════════
+   BACKGROUND — Network + Wireframe Head
+══════════════════════════════════════════ */
+(function(){
+  const bgCvs = document.getElementById('bg-canvas');
+  const bgCtx = bgCvs.getContext('2d');
+  const hCvs  = document.getElementById('head-canvas');
+  const hCtx  = hCvs.getContext('2d');
+  let W, H, t = 0;
+
+  function resize(){
+    W=bgCvs.width=hCvs.width=window.innerWidth;
+    H=bgCvs.height=hCvs.height=window.innerHeight;
+    buildHead();
+  }
+
+  /* ── NETWORK NODES ── */
+  const NODE_COUNT=70;
+  const COLS=[[99,102,241],[217,119,6],[13,148,136],[124,58,237],[2,132,199],[225,29,72],[16,185,129]];
+  let nodes=[];
+  function buildNodes(){
+    nodes=Array.from({length:NODE_COUNT},()=>({
+      x:Math.random(),y:Math.random()*.85+.05,
+      vx:(Math.random()-.5)*.00035,vy:(Math.random()-.5)*.00022,
+      r:1.5+Math.random()*6,col:COLS[Math.floor(Math.random()*COLS.length)],
+      pulse:Math.random()*Math.PI*2,ps:0.012+Math.random()*.018,
+      glow:Math.random()>.6,
+    }));
+  }
+
+  /* ── WIREFRAME HEAD ── */
+  let headVerts=[],headEdges=[];
+  function buildHead(){
+    headVerts=[];headEdges=[];
+    const profile=[
+      [-.55,.9,0],[-.65,.5,0],[-.62,-.1,0],[-.52,-.6,0],[-.35,-.9,0],
+      [-.1,-1.05,0],[.0,-1.1,0],[.1,-1.05,0],[.35,-.9,0],[.52,-.6,0],
+      [.58,-.1,0],[.62,.1,0],[.65,.4,0],[.6,.75,0],[.45,1.0,0],
+      [.2,1.1,0],[-.2,1.1,0],[-.45,1.0,0],
+    ];
+    const face=[
+      [-.3,.75,.3],[-.4,.3,.3],[-.38,-.15,.3],[-.3,-.55,.3],[-.1,-.82,.3],
+      [.0,-.88,.3],[.1,-.82,.3],[.3,-.55,.3],[.38,-.15,.3],[.4,.3,.3],
+      [.35,.75,.3],[.15,.95,.3],[-.15,.95,.3],
+    ];
+    const rings=[0,0.15,0.3,0.45,0.6];
+    rings.forEach((z)=>{
+      const scale=1-z*.35;
+      profile.forEach(([px,py])=>headVerts.push([px*scale,py*scale,z-0.3]));
+    });
+    face.forEach(v=>headVerts.push(v));
+    const PL=profile.length;
+    rings.forEach((_,ri)=>{
+      const base=ri*PL;
+      for(let i=0;i<PL;i++){
+        headEdges.push([base+i,base+(i+1)%PL]);
+        if(ri<rings.length-1)headEdges.push([base+i,base+PL+i]);
+      }
+    });
+    const fBase=rings.length*PL;
+    face.forEach((_,i)=>{
+      headEdges.push([fBase+i,fBase+(i+1)%face.length]);
+      const lastRingBase=(rings.length-1)*PL;
+      const nearest=Math.round(i/face.length*(PL-1));
+      headEdges.push([fBase+i,lastRingBase+nearest]);
+    });
+  }
+
+  function projectHead(v,cx,cy,rot,tilt,scale){
+    const[x,y,z]=v;
+    const rx=x*Math.cos(rot)-z*Math.sin(rot);
+    const rz=x*Math.sin(rot)+z*Math.cos(rot);
+    const ry2=y*Math.cos(tilt)-rz*Math.sin(tilt);
+    const rz2=y*Math.sin(tilt)+rz*Math.cos(tilt);
+    const fov=2.2,pz=rz2+fov;
+    return{sx:(rx/pz)*scale+cx,sy:(ry2/pz)*scale+cy,depth:rz2};
+  }
+
+  function drawHead(){
+    // Only clear the right portion for the head
+    hCtx.clearRect(W*.5,0,W*.5,H);
+    if(!headVerts.length)return;
+    const cx=W*.78,cy=H*.5,sc=Math.min(W,H)*.28;
+    const rot=Math.sin(t*0.025)*0.7+Math.sin(t*0.009)*0.3; // faster, wider sway
+    const tilt=Math.sin(t*0.014)*0.18+Math.sin(t*0.022)*0.08;
+    const proj=headVerts.map(v=>projectHead(v,cx,cy,rot,tilt,sc));
+    const maxD=0.8,minD=-0.8;
+    headEdges.forEach(([ai,bi])=>{
+      if(ai>=proj.length||bi>=proj.length)return;
+      const pa=proj[ai],pb=proj[bi];
+      const avgD=(pa.depth+pb.depth)/2;
+      const norm=(avgD-minD)/(maxD-minD);
+      const r=Math.round(60+norm*160),g=Math.round(40+norm*80),b=Math.round(220-norm*120);
+      const a=0.15+norm*0.55;
+      hCtx.save();
+      hCtx.strokeStyle=`rgba(${r+40},${g+20},${b},${a*0.4})`;
+      hCtx.lineWidth=3.5;hCtx.shadowColor=`rgba(${r},${g},${b},0.6)`;hCtx.shadowBlur=14;
+      hCtx.beginPath();hCtx.moveTo(pa.sx,pa.sy);hCtx.lineTo(pb.sx,pb.sy);hCtx.stroke();
+      hCtx.restore();
+      hCtx.save();
+      hCtx.strokeStyle=`rgba(${r},${g},${b},${a})`;hCtx.lineWidth=0.8;
+      hCtx.beginPath();hCtx.moveTo(pa.sx,pa.sy);hCtx.lineTo(pb.sx,pb.sy);hCtx.stroke();
+      hCtx.restore();
+    });
+    proj.forEach((p,i)=>{
+      if(i%3!==0)return;
+      const norm=(p.depth-minD)/(maxD-minD);
+      const r=80+norm*175,g=60+norm*60,b=200-norm*100;
+      hCtx.save();
+      hCtx.shadowColor=`rgba(${r},${g},${b},0.9)`;hCtx.shadowBlur=12;
+      hCtx.fillStyle=`rgba(${r},${g},${b},${0.3+norm*0.5})`;
+      hCtx.beginPath();hCtx.arc(p.sx,p.sy,1.2+norm*2,0,Math.PI*2);hCtx.fill();
+      hCtx.restore();
+    });
+    const gPulse=0.5+Math.sin(t*0.06)*0.5; // faster pulse
+    const grd=hCtx.createRadialGradient(cx+sc*.08,cy-sc*.08,0,cx+sc*.08,cy-sc*.08,sc*.6);
+    grd.addColorStop(0,`rgba(200,80,80,${0.13*gPulse})`);
+    grd.addColorStop(0.4,`rgba(240,110,40,${0.08*gPulse})`);
+    grd.addColorStop(1,'rgba(0,0,0,0)');
+    hCtx.fillStyle=grd;
+    hCtx.beginPath();hCtx.ellipse(cx+sc*.08,cy-sc*.08,sc*.65,sc*.75,0,0,Math.PI*2);hCtx.fill();
+  }
+
+  function drawBG(){
+    bgCtx.clearRect(0,0,W,H);
+    const bgGrad=bgCtx.createRadialGradient(W*.3,H*.4,0,W*.5,H*.5,Math.max(W,H)*.9);
+    bgGrad.addColorStop(0,'#F5F7FF');bgGrad.addColorStop(0.5,'#EEF2FF');bgGrad.addColorStop(1,'#E8EEFF');
+    bgCtx.fillStyle=bgGrad;bgCtx.fillRect(0,0,W,H);
+    [[W*.15,H*.35,W*.38,'rgba(99,102,241,.07)'],[W*.78,H*.28,W*.30,'rgba(245,158,11,.05)'],[W*.5,H*.85,W*.40,'rgba(13,148,136,.05)']].forEach(([gx,gy,gr,col])=>{
+      const g2=bgCtx.createRadialGradient(gx,gy,0,gx,gy,gr);
+      g2.addColorStop(0,col);g2.addColorStop(1,'rgba(0,0,0,0)');
+      bgCtx.fillStyle=g2;bgCtx.fillRect(0,0,W,H);
+    });
+    nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0)n.x=1;if(n.x>1)n.x=0;if(n.y<.02)n.y=.98;if(n.y>.98)n.y=.02;n.pulse+=n.ps;});
+    for(let i=0;i<nodes.length;i++){
+      for(let j=i+1;j<nodes.length;j++){
+        const a=nodes[i],b=nodes[j];
+        const dx=(a.x-b.x)*W,dy=(a.y-b.y)*H;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<180){
+          const alpha=(1-dist/180)*.18;
+          const gline=bgCtx.createLinearGradient(a.x*W,a.y*H,b.x*W,b.y*H);
+          gline.addColorStop(0,`rgba(${a.col[0]},${a.col[1]},${a.col[2]},${alpha})`);
+          gline.addColorStop(1,`rgba(${b.col[0]},${b.col[1]},${b.col[2]},${alpha})`);
+          bgCtx.beginPath();bgCtx.strokeStyle=gline;bgCtx.lineWidth=.7;bgCtx.moveTo(a.x*W,a.y*H);bgCtx.lineTo(b.x*W,b.y*H);bgCtx.stroke();
+        }
+      }
+    }
+    nodes.forEach(n=>{
+      const pulse=.7+Math.sin(n.pulse)*.3;
+      const[r,g,b]=n.col,nr=n.r*pulse;
+      if(n.glow){bgCtx.save();bgCtx.shadowColor=`rgb(${r},${g},${b})`;bgCtx.shadowBlur=nr*4;bgCtx.fillStyle=`rgba(${r},${g},${b},.85)`;bgCtx.beginPath();bgCtx.arc(n.x*W,n.y*H,nr*.7,0,Math.PI*2);bgCtx.fill();bgCtx.restore();}
+      bgCtx.fillStyle=`rgba(${r},${g},${b},${.3+pulse*.22})`;bgCtx.beginPath();bgCtx.arc(n.x*W,n.y*H,nr,0,Math.PI*2);bgCtx.fill();
+      bgCtx.fillStyle='rgba(255,255,255,.35)';bgCtx.beginPath();bgCtx.arc(n.x*W-nr*.2,n.y*H-nr*.2,nr*.3,0,Math.PI*2);bgCtx.fill();
+    });
+  }
+
+  function loop(){t++;drawBG();drawHead();requestAnimationFrame(loop);}
+
+  resize();buildNodes();loop();
+  window.addEventListener('resize',()=>{resize();buildNodes();});
+})();
 
 /* ══════════════════════════════════════════
    INIT
@@ -679,582 +894,14 @@ async function main(){
   finally{setTimeout(()=>document.getElementById('loading').classList.add('hide'),1800);}
 }
 main();
+
 setInterval(async()=>{
   try{
     const d=await loadData();
-    DATA=d;
-    checkAnnouncement(d);
+    DATA=d;checkAnnouncement(d);
     document.getElementById('tb-time').textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   }catch(e){}
 },30000);
-
-/* ══════════════════════════════════════════
-   DARK NETWORK + GLOWING HEAD SCENE
-   Inspired by the reference image
-══════════════════════════════════════════ */
-(function(){
-  /* ── Setup two canvases ──
-     bg-canvas  = dark bg + network nodes (behind everything)
-     head-canvas = glowing wireframe head (right side)
-  ─────────────────────────────────────── */
-  const bgCvs  = document.getElementById('bg-canvas');
-  const bgCtx  = bgCvs.getContext('2d');
-
-  // Create a second canvas for the head (overlay, right side)
-  const hCvs = document.createElement('canvas');
-  hCvs.style.cssText = 'position:fixed;inset:0;z-index:1;pointer-events:none;';
-  document.body.appendChild(hCvs);
-  const hCtx = hCvs.getContext('2d');
-
-  let W, H, t = 0;
-
-  function resize(){
-    W = bgCvs.width  = hCvs.width  = window.innerWidth;
-    H = bgCvs.height = hCvs.height = window.innerHeight;
-    buildHead();
-  }
-
-  /* ══════════════════════════════════
-     NETWORK NODES
-  ══════════════════════════════════ */
-  const NODE_COUNT = 70;
-  const COLS = [
-    [255,80,100],   // hot red
-    [255,130,50],   // orange
-    [255,200,80],   // yellow
-    [120,180,255],  // sky blue
-    [200,130,255],  // violet
-    [80,220,200],   // teal
-    [255,255,255],  // white
-  ];
-
-  let nodes = [];
-  function buildNodes(){
-    nodes = Array.from({length:NODE_COUNT},(_,i)=>({
-      x: Math.random(),
-      y: Math.random()*.85 + .05,
-      vx:(Math.random()-.5)*.00035,
-      vy:(Math.random()-.5)*.00022,
-      r: 1.5 + Math.random()*6,
-      col: COLS[Math.floor(Math.random()*COLS.length)],
-      pulse: Math.random()*Math.PI*2,
-      ps: 0.012 + Math.random()*.018,
-      glow: Math.random() > .6,
-    }));
-  }
-
-  /* ══════════════════════════════════
-     WIREFRAME HEAD (right side)
-  ══════════════════════════════════ */
-  let headVerts = [], headEdges = [];
-  let headRot = 0;
-
-  function buildHead(){
-    headVerts = [];
-    headEdges = [];
-
-    /* Generate a stylised head silhouette as 3D points.
-       We build it in normalised coords (-1..1) then project. */
-    const profile = [
-      // back of skull
-      [-.55, .9,0],[-.65, .5,0],[-.62,-.1,0],[-.52,-.6,0],[-.35,-.9,0],
-      // chin
-      [-.1,-1.05,0],[.0,-1.1,0],[.1,-1.05,0],
-      // jaw to cheek
-      [.35,-.9,0],[.52,-.6,0],[.58,-.1,0],
-      // nose bridge area
-      [.62,.1,0],[.65,.4,0],
-      // forehead
-      [.6,.75,0],[.45,1.0,0],[.2,1.1,0],[-.2,1.1,0],[-.45,1.0,0],
-    ];
-
-    // Front face ring (z=0.3, slightly forward)
-    const face = [
-      [-.3, .75,.3],[-.4, .3,.3],[-.38,-.15,.3],[-.3,-.55,.3],
-      [-.1,-.82,.3],[.0,-.88,.3],[.1,-.82,.3],[.3,-.55,.3],
-      [.38,-.15,.3],[.4, .3,.3],[.35, .75,.3],[.15, .95,.3],[-.15, .95,.3],
-    ];
-
-    // Side depth rings (vary z to simulate depth)
-    const rings = [0, 0.15, 0.3, 0.45, 0.6];
-    rings.forEach((z,ri)=>{
-      const scale = 1 - z*.35;
-      profile.forEach(([px,py],i)=>{
-        headVerts.push([px*scale, py*scale, z - 0.3]);
-      });
-    });
-
-    // Face vertices
-    face.forEach(v=>headVerts.push(v));
-
-    // Build edges: connect ring-to-ring and within rings
-    const PL = profile.length;
-    rings.forEach((z,ri)=>{
-      const base = ri*PL;
-      for(let i=0;i<PL;i++){
-        // Within ring
-        headEdges.push([base+i, base+(i+1)%PL]);
-        // To next ring
-        if(ri<rings.length-1) headEdges.push([base+i, base+PL+i]);
-      }
-    });
-
-    // Connect last ring to face verts
-    const fBase = rings.length*PL;
-    face.forEach((_,i)=>{
-      headEdges.push([fBase+i, fBase+(i+1)%face.length]);
-      // connect to nearest profile point on last ring
-      const lastRingBase = (rings.length-1)*PL;
-      const nearest = Math.round(i/face.length*(PL-1));
-      headEdges.push([fBase+i, lastRingBase+nearest]);
-    });
-  }
-
-  function projectHead(v, cx, cy, rot, tilt, scale){
-    const [x,y,z] = v;
-    // Rotate around Y axis
-    const rx = x*Math.cos(rot) - z*Math.sin(rot);
-    const rz = x*Math.sin(rot) + z*Math.cos(rot);
-    // Tilt around X
-    const ry2 = y*Math.cos(tilt) - rz*Math.sin(tilt);
-    const rz2 = y*Math.sin(tilt) + rz*Math.cos(tilt);
-    // Perspective
-    const fov = 2.2;
-    const pz  = rz2 + fov;
-    const sx  = (rx/pz)*scale + cx;
-    const sy  = (ry2/pz)*scale + cy;
-    return { sx, sy, depth: rz2 };
-  }
-
-  function drawHead(){
-    hCtx.clearRect(0,0,W,H);
-    if(!headVerts.length) return;
-
-    const cx   = W*0.78;
-    const cy   = H*0.52;
-    const sc   = Math.min(W,H)*0.28;
-    const rot  = headRot;
-    const tilt = Math.sin(t*0.004)*0.06;
-
-    // Project all verts
-    const proj = headVerts.map(v=>projectHead(v,cx,cy,rot,tilt,sc));
-
-    // Glow layers — draw edges with depth-based color
-    const maxDepth = 0.8, minDepth = -0.8;
-
-    headEdges.forEach(([ai,bi])=>{
-      if(ai>=proj.length||bi>=proj.length) return;
-      const pa = proj[ai], pb = proj[bi];
-      const avgD = (pa.depth+pb.depth)/2;
-      const norm = (avgD-minDepth)/(maxDepth-minDepth); // 0..1
-
-      // Color: deep = cool blue/purple, front = hot red/orange
-      const r = Math.round(80  + norm*175);
-      const g = Math.round(60  + norm*60);
-      const b = Math.round(200 - norm*100);
-      const a = 0.08 + norm*0.35;
-
-      // Outer glow pass
-      hCtx.save();
-      hCtx.strokeStyle = `rgba(${r+40},${g+20},${b},${a*0.4})`;
-      hCtx.lineWidth   = 3.5;
-      hCtx.shadowColor = `rgba(${r},${g},${b},0.6)`;
-      hCtx.shadowBlur  = 14;
-      hCtx.beginPath();
-      hCtx.moveTo(pa.sx,pa.sy);
-      hCtx.lineTo(pb.sx,pb.sy);
-      hCtx.stroke();
-      hCtx.restore();
-
-      // Core line
-      hCtx.save();
-      hCtx.strokeStyle = `rgba(${r},${g},${b},${a})`;
-      hCtx.lineWidth   = 0.8;
-      hCtx.beginPath();
-      hCtx.moveTo(pa.sx,pa.sy);
-      hCtx.lineTo(pb.sx,pb.sy);
-      hCtx.stroke();
-      hCtx.restore();
-    });
-
-    // Vertex dots (hot spots)
-    proj.forEach((p,i)=>{
-      if(i%3!==0) return; // thin out
-      const norm = (p.depth-minDepth)/(maxDepth-minDepth);
-      const r = 80+norm*175, g=60+norm*60, b=200-norm*100;
-      hCtx.save();
-      hCtx.shadowColor = `rgba(${r},${g},${b},0.9)`;
-      hCtx.shadowBlur  = 12;
-      hCtx.fillStyle   = `rgba(${r},${g},${b},${0.3+norm*0.5})`;
-      hCtx.beginPath();
-      hCtx.arc(p.sx,p.sy, 1.2+norm*2, 0, Math.PI*2);
-      hCtx.fill();
-      hCtx.restore();
-    });
-
-    // Brain glow (warm pulsing sphere behind head)
-    const gPulse = 0.6 + Math.sin(t*0.022)*0.4;
-    const grd = hCtx.createRadialGradient(cx+sc*.08,cy-sc*.08,0, cx+sc*.08,cy-sc*.08,sc*.6);
-    grd.addColorStop(0,  `rgba(220,100,100,${0.09*gPulse})`);
-    grd.addColorStop(0.4,`rgba(255,130,60,${0.055*gPulse})`);
-    grd.addColorStop(1,  'rgba(0,0,0,0)');
-    hCtx.fillStyle = grd;
-    hCtx.beginPath();
-    hCtx.ellipse(cx+sc*.08,cy-sc*.08, sc*.65,sc*.75,0,0,Math.PI*2);
-    hCtx.fill();
-  }
-
-  /* ══════════════════════════════════
-     DARK BG + NETWORK DRAW LOOP
-  ══════════════════════════════════ */
-  function drawBG(){
-    // Dark gradient background
-    bgCtx.clearRect(0,0,W,H);
-
-    const bgGrad = bgCtx.createRadialGradient(W*.3,H*.4,0, W*.5,H*.5,Math.max(W,H)*.9);
-    bgGrad.addColorStop(0,  '#EEF2FF');
-    bgGrad.addColorStop(0.45,'#E8EEFF');
-    bgGrad.addColorStop(1,  '#DDE4FF');
-    bgCtx.fillStyle = bgGrad;
-    bgCtx.fillRect(0,0,W,H);
-
-    // Atmospheric glow patches
-    const glows = [
-      [W*.15, H*.35, W*.38, 'rgba(99,102,241,.07)'],
-      [W*.78, H*.28, W*.30, 'rgba(245,158,11,.05)'],
-      [W*.5,  H*.85, W*.40, 'rgba(13,148,136,.05)'],
-    ];
-    glows.forEach(([gx,gy,gr,col])=>{
-      const g2 = bgCtx.createRadialGradient(gx,gy,0,gx,gy,gr);
-      g2.addColorStop(0,col); g2.addColorStop(1,'rgba(0,0,0,0)');
-      bgCtx.fillStyle=g2; bgCtx.fillRect(0,0,W,H);
-    });
-
-    // Update + draw nodes
-    nodes.forEach(n=>{
-      n.x += n.vx; n.y += n.vy;
-      if(n.x<0)n.x=1; if(n.x>1)n.x=0;
-      if(n.y<0.02)n.y=.98; if(n.y>.98)n.y=.02;
-      n.pulse += n.ps;
-    });
-
-    // Connections
-    for(let i=0;i<nodes.length;i++){
-      for(let j=i+1;j<nodes.length;j++){
-        const a=nodes[i], b=nodes[j];
-        const dx=(a.x-b.x)*W, dy=(a.y-b.y)*H;
-        const dist=Math.sqrt(dx*dx+dy*dy);
-        const maxDist=180;
-        if(dist<maxDist){
-          const alpha=(1-dist/maxDist)*.25;
-          // Gradient line between node colors
-          const gline=bgCtx.createLinearGradient(a.x*W,a.y*H,b.x*W,b.y*H);
-          gline.addColorStop(0,`rgba(${a.col[0]},${a.col[1]},${a.col[2]},${alpha})`);
-          gline.addColorStop(1,`rgba(${b.col[0]},${b.col[1]},${b.col[2]},${alpha})`);
-          bgCtx.beginPath();
-          bgCtx.strokeStyle=gline;
-          bgCtx.lineWidth=.7;
-          bgCtx.moveTo(a.x*W,a.y*H);
-          bgCtx.lineTo(b.x*W,b.y*H);
-          bgCtx.stroke();
-        }
-      }
-    }
-
-    // Node dots
-    nodes.forEach(n=>{
-      const pulse = .7+Math.sin(n.pulse)*.3;
-      const r=n.col[0], g=n.col[1], b=n.col[2];
-      const nr=n.r*pulse;
-
-      if(n.glow){
-        bgCtx.save();
-        bgCtx.shadowColor=`rgb(${r},${g},${b})`;
-        bgCtx.shadowBlur=nr*4;
-        bgCtx.fillStyle=`rgba(${r},${g},${b},.85)`;
-        bgCtx.beginPath();
-        bgCtx.arc(n.x*W,n.y*H,nr*.7,0,Math.PI*2);
-        bgCtx.fill();
-        bgCtx.restore();
-      }
-
-      bgCtx.fillStyle=`rgba(${r},${g},${b},${.35+pulse*.3})`;
-      bgCtx.beginPath();
-      bgCtx.arc(n.x*W,n.y*H,nr,0,Math.PI*2);
-      bgCtx.fill();
-
-      // Inner highlight
-      bgCtx.fillStyle=`rgba(255,255,255,.35)`;
-      bgCtx.beginPath();
-      bgCtx.arc(n.x*W-nr*.2,n.y*H-nr*.2,nr*.3,0,Math.PI*2);
-      bgCtx.fill();
-    });
-  }
-
-  /* ══════════════════════════════════
-     MAIN LOOP
-  ══════════════════════════════════ */
-  function loop(){
-    t++;
-    headRot = Math.sin(t*0.006)*0.35 + 0.1; // gentle head sway
-
-    drawBG();
-    drawHead();
-  }
-
-
-  /* ══════════════════════════════════
-     CARTOON CAT + PERSON
-  ══════════════════════════════════ */
-
-  // Cat state
-  const cat = {
-    x:0.82, y:0.74, tx:0.82, ty:0.74,
-    dir:1, step:0, timer:0, tailWag:0
-  };
-  // Person follows with delay
-  const person = { x:0.94, y:0.74, step:0 };
-
-  function drawCartoonCat(cx, cy, dir, step){
-    const S = Math.min(W,H) * 0.055;
-    ctx.save();
-    ctx.translate(cx*W, cy*H);
-    if(dir < 0) ctx.scale(-1,1);
-
-    const bob = Math.sin(step*0.22)*S*0.04;
-    const lp  = step*0.2;
-
-    // Shadow
-    ctx.save(); ctx.globalAlpha=0.12; ctx.fillStyle='#6366F1';
-    ctx.beginPath(); ctx.ellipse(0, S*.75+bob, S*.35, S*.07, 0,0,Math.PI*2); ctx.fill(); ctx.restore();
-
-    // Tail (wavy)
-    const tw = Math.sin(step*0.15)*0.55;
-    ctx.save();
-    ctx.strokeStyle='#F59E0B'; ctx.lineWidth=S*.11; ctx.lineCap='round';
-    ctx.beginPath();
-    ctx.moveTo(-S*.25, S*.44+bob);
-    ctx.bezierCurveTo(
-      -S*.7,  S*.2+bob,
-      -S*.8 + Math.cos(tw)*S*.2, -S*.05+Math.sin(tw)*S*.3,
-      -S*.55+ Math.cos(tw)*S*.3, -S*.2 +Math.sin(tw)*S*.4
-    );
-    ctx.stroke(); ctx.restore();
-
-    // Back legs
-    [[-S*.18, S*.56+bob, Math.sin(lp+Math.PI)*S*.28],
-     [ S*.02, S*.56+bob, Math.sin(lp)*S*.28]].forEach(([lx,ly,sw])=>{
-      ctx.strokeStyle='#6366F1'; ctx.lineWidth=S*.12; ctx.lineCap='round';
-      ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(lx+sw*.45, ly+S*.3-Math.abs(sw)*.25); ctx.stroke();
-      // Paw
-      ctx.fillStyle='#818CF8';
-      ctx.beginPath(); ctx.ellipse(lx+sw*.5, ly+S*.32, S*.075,S*.045, 0.3, 0,Math.PI*2); ctx.fill();
-    });
-
-    // Body
-    const bg = ctx.createRadialGradient(0,S*.22+bob,S*.02, S*.05,S*.1+bob, S*.38);
-    bg.addColorStop(0,'#818CF8'); bg.addColorStop(1,'#4F46E5');
-    ctx.fillStyle=bg;
-    ctx.beginPath(); ctx.ellipse(0, S*.32+bob, S*.28, S*.21, -0.15, 0,Math.PI*2); ctx.fill();
-
-    // Front legs
-    [[ S*.1,  S*.5+bob, Math.sin(lp+Math.PI)*S*.18],
-     [ S*.2,  S*.5+bob, Math.sin(lp)*S*.18]].forEach(([lx,ly,sw])=>{
-      ctx.strokeStyle='#6366F1'; ctx.lineWidth=S*.12; ctx.lineCap='round';
-      ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(lx+sw*.3, ly+S*.22); ctx.stroke();
-      ctx.fillStyle='#818CF8';
-      ctx.beginPath(); ctx.ellipse(lx+sw*.35, ly+S*.24, S*.065,S*.04, 0.3, 0,Math.PI*2); ctx.fill();
-    });
-
-    // Head
-    ctx.save(); ctx.translate(S*.14, S*.04+bob);
-    const hg = ctx.createRadialGradient(0,-S*.02,S*.03, S*.04,-S*.06,S*.2);
-    hg.addColorStop(0,'#A5B4FC'); hg.addColorStop(1,'#6366F1');
-    ctx.fillStyle=hg;
-    ctx.beginPath(); ctx.ellipse(0,-S*.02, S*.18, S*.17, 0.08, 0,Math.PI*2); ctx.fill();
-
-    // Ears — pointy cartoon style
-    [[-S*.1,-S*.14],[S*.06,-S*.17]].forEach(([ex,ey],ei)=>{
-      ctx.fillStyle='#4F46E5';
-      ctx.beginPath(); ctx.moveTo(ex,ey); ctx.lineTo(ex-S*.06,ey-S*.2); ctx.lineTo(ex+S*.08,ey-S*.04); ctx.closePath(); ctx.fill();
-      ctx.fillStyle='#FCA5A5';
-      ctx.beginPath(); ctx.moveTo(ex,ey); ctx.lineTo(ex-S*.03,ey-S*.13); ctx.lineTo(ex+S*.05,ey-S*.03); ctx.closePath(); ctx.fill();
-    });
-
-    // Big cartoon eyes
-    ctx.fillStyle='white';
-    [[-S*.07,-S*.05],[S*.05,-S*.05]].forEach(([ex,ey])=>{
-      ctx.beginPath(); ctx.ellipse(ex,ey,S*.055,S*.065,0,0,Math.PI*2); ctx.fill();
-    });
-    ctx.fillStyle='#1E1B4B';
-    [[-S*.07,-S*.05],[S*.05,-S*.05]].forEach(([ex,ey])=>{
-      ctx.beginPath(); ctx.ellipse(ex,ey,S*.03,S*.042,0,0,Math.PI*2); ctx.fill();
-    });
-    // Eye shine
-    ctx.fillStyle='rgba(255,255,255,.9)';
-    [[-S*.055,-S*.07],[S*.065,-S*.07]].forEach(([ex,ey])=>{
-      ctx.beginPath(); ctx.arc(ex,ey,S*.014,0,Math.PI*2); ctx.fill();
-    });
-
-    // Cute nose
-    ctx.fillStyle='#FCA5A5';
-    ctx.beginPath(); ctx.moveTo(S*.14,-S*.04); ctx.lineTo(S*.1,-S*.07); ctx.lineTo(S*.18,-S*.07); ctx.closePath(); ctx.fill();
-    // Mouth smile
-    ctx.strokeStyle='#6366F1'; ctx.lineWidth=S*.02; ctx.lineCap='round';
-    ctx.beginPath(); ctx.arc(S*.14,-S*.01,S*.05,0.2,Math.PI-0.2); ctx.stroke();
-
-    // Whiskers
-    ctx.strokeStyle='rgba(255,255,255,.75)'; ctx.lineWidth=S*.016; ctx.lineCap='round';
-    [[S*.18,-S*.05,S*.42,-S*.09],[S*.18,-S*.065,S*.42,S*.0]].forEach(([x1,y1,x2,y2])=>{
-      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
-    });
-    ctx.restore();
-
-    ctx.restore();
-  }
-
-  function drawCartoonPerson(px, py, step, dir){
-    const S = Math.min(W,H) * 0.065;
-    ctx.save();
-    ctx.translate(px*W, py*H);
-    if(dir < 0) ctx.scale(-1,1);
-
-    const bob = Math.sin(step*0.22)*S*0.035;
-    const lp  = step*0.2;
-    const ap  = lp + Math.PI;
-
-    // Shadow
-    ctx.save(); ctx.globalAlpha=0.1; ctx.fillStyle='#6366F1';
-    ctx.beginPath(); ctx.ellipse(0, S*.98, S*.22, S*.055, 0,0,Math.PI*2); ctx.fill(); ctx.restore();
-
-    // Legs with knees
-    [[-S*.08, Math.sin(lp)*S*.38],
-     [ S*.08, Math.sin(lp+Math.PI)*S*.38]].forEach(([lx,sw])=>{
-      const kx = lx+sw*.35, ky = S*.6+bob-Math.abs(sw)*.18;
-      // Upper
-      ctx.strokeStyle='#4F46E5'; ctx.lineWidth=S*.13; ctx.lineCap='round';
-      ctx.beginPath(); ctx.moveTo(lx,S*.44+bob); ctx.lineTo(kx,ky); ctx.stroke();
-      // Lower
-      ctx.strokeStyle='#6366F1'; ctx.lineWidth=S*.11;
-      ctx.beginPath(); ctx.moveTo(kx,ky); ctx.lineTo(lx+sw*.5, S*.94+bob); ctx.stroke();
-      // Shoe
-      ctx.fillStyle='#1E1B4B';
-      ctx.beginPath(); ctx.ellipse(lx+sw*.55, S*.95+bob, S*.1,S*.048, 0.25, 0,Math.PI*2); ctx.fill();
-    });
-
-    // Body — rounded rectangle cartoon style
-    const bodyG = ctx.createLinearGradient(-S*.18,0,S*.18,S*.44);
-    bodyG.addColorStop(0,'#818CF8'); bodyG.addColorStop(1,'#4F46E5');
-    ctx.fillStyle=bodyG;
-    ctx.beginPath();
-    ctx.roundRect(-S*.17, S*.04+bob, S*.34, S*.42, S*.07);
-    ctx.fill();
-
-    // Arms
-    [[-S*.17, Math.sin(ap)*S*.28],
-     [ S*.17, Math.sin(ap+Math.PI)*S*.28]].forEach(([ax,sw])=>{
-      ctx.strokeStyle='#818CF8'; ctx.lineWidth=S*.12; ctx.lineCap='round';
-      ctx.beginPath(); ctx.moveTo(ax, S*.1+bob); ctx.lineTo(ax-sw*.12, S*.38+bob+sw*.15); ctx.stroke();
-      // Hand
-      ctx.fillStyle='#FDE68A';
-      ctx.beginPath(); ctx.arc(ax-sw*.14, S*.4+bob+sw*.16, S*.055, 0,Math.PI*2); ctx.fill();
-    });
-
-    // Neck
-    ctx.fillStyle='#FDE68A';
-    ctx.beginPath(); ctx.ellipse(0, S*.02+bob, S*.075, S*.06, 0,0,Math.PI*2); ctx.fill();
-
-    // Head — big cartoon circle
-    const headG = ctx.createRadialGradient(-S*.04,-S*.2+bob,S*.02, 0,-S*.15+bob, S*.22);
-    headG.addColorStop(0,'#FEF3C7'); headG.addColorStop(1,'#FDE68A');
-    ctx.fillStyle=headG;
-    ctx.beginPath(); ctx.ellipse(0,-S*.14+bob, S*.19,S*.22, 0, 0,Math.PI*2); ctx.fill();
-
-    // Hair
-    ctx.fillStyle='#92400E';
-    ctx.beginPath(); ctx.ellipse(0,-S*.3+bob, S*.2,S*.1, 0, Math.PI,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(S*.05,-S*.4+bob, S*.08, 0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(-S*.07,-S*.38+bob, S*.07, 0,Math.PI*2); ctx.fill();
-
-    // Big eyes
-    ctx.fillStyle='white';
-    [[-S*.07,-S*.16],[S*.07,-S*.16]].forEach(([ex,ey])=>{
-      ctx.beginPath(); ctx.ellipse(ex,ey+bob,S*.055,S*.065,0,0,Math.PI*2); ctx.fill();
-    });
-    ctx.fillStyle='#1E1B4B';
-    [[-S*.07,-S*.16],[S*.07,-S*.16]].forEach(([ex,ey])=>{
-      ctx.beginPath(); ctx.ellipse(ex,ey+bob,S*.03,S*.042,0,0,Math.PI*2); ctx.fill();
-    });
-    ctx.fillStyle='rgba(255,255,255,.9)';
-    [[-S*.055,-S*.18],[S*.085,-S*.18]].forEach(([ex,ey])=>{
-      ctx.beginPath(); ctx.arc(ex,ey+bob,S*.015,0,Math.PI*2); ctx.fill();
-    });
-
-    // Smile
-    ctx.strokeStyle='#92400E'; ctx.lineWidth=S*.025; ctx.lineCap='round';
-    ctx.beginPath(); ctx.arc(0,-S*.06+bob, S*.07, 0.15, Math.PI-0.15); ctx.stroke();
-
-    ctx.restore();
-  }
-
-  // ── Cat + Person animation loop (injected into main loop) ──
-  let catStep=0, personStep=0;
-
-  function tickCatPerson(){
-    // Cat wanders in right portion of screen
-    cat.timer--;
-    if(cat.timer<=0){
-      cat.tx = 0.60 + Math.random()*0.34;
-      cat.ty = 0.68 + Math.random()*0.12;
-      cat.timer = 90 + Math.random()*150;
-    }
-    const cdx=cat.tx-cat.x, cdy=cat.ty-cat.y;
-    const cdist=Math.sqrt(cdx*cdx+cdy*cdy);
-    const catSpd=0.0028;
-    if(cdist>0.004){
-      cat.x += (cdx/cdist)*catSpd;
-      cat.y += (cdy/cdist)*0.001;
-      cat.dir = cdx>0?1:-1;
-      catStep++;
-    }
-    // Person follows cat — stays slightly behind
-    const targetX = cat.x + cat.dir*0.1; // lag behind
-    const pdx=targetX-person.x, pdy=cat.y-person.y;
-    const pdist=Math.sqrt(pdx*pdx+pdy*pdy);
-    const personSpd=0.0022;
-    if(pdist>0.04){
-      person.x += (pdx/pdist)*personSpd;
-      person.y += (pdy/pdist)*0.0008;
-      personStep++;
-    }
-    const pDir = pdx>=0?1:-1;
-
-    // Ground line
-    const groundY = cat.y*H + Math.min(W,H)*0.06;
-    ctx.save();
-    ctx.strokeStyle='rgba(99,102,241,.1)'; ctx.lineWidth=1.5;
-    ctx.setLineDash([6,14]);
-    ctx.beginPath(); ctx.moveTo(W*0.56,groundY); ctx.lineTo(W,groundY); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.restore();
-
-    drawCartoonCat(cat.x, cat.y, cat.dir, catStep);
-    drawCartoonPerson(person.x, person.y, personStep, pDir);
-  }
-
-  // Patch the loop to call tickCatPerson
-  resize();
-  buildNodes();
-
-  // Override loop to include cat/person
-  function loopWithScene(){
-    _drawLoop();
-    tickCatPerson();
-    requestAnimationFrame(loopWithScene);
-  }
-  loopWithScene();
-  window.addEventListener('resize',()=>{resize();buildNodes();});
-})();
 </script>
 </body>
 </html>
