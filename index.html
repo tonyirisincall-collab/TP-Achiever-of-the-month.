@@ -11,7 +11,7 @@
   <!-- canvas-confetti for celebration effects -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
   <style>
-    /* same styles as before, no RTL changes */
+    /* same styles as before */
     * {
       margin: 0;
       padding: 0;
@@ -199,6 +199,11 @@
       // --------------------------------------------------------------
       const API_URL = 'https://script.google.com/macros/s/AKfycbzn5XQeJGT0_JkfClZA3eFpFsDqtUEYpe16Iut7nxOp94Fm8e8eVPQZXAKl3e3YOrrDfA/exec';
 
+      // Use a CORS proxy to bypass the missing CORS header
+      // Note: This is a temporary solution. For production, modify your Apps Script to include:
+      // .setHeader('Access-Control-Allow-Origin', '*')
+      const PROXY_URL = 'https://api.allorigins.win/raw?url=';
+
       // Global state
       let slidesData = [];
       let currentSlideIndex = 0;
@@ -217,13 +222,14 @@
       const musicVolumeInput = document.getElementById('musicVolume');
 
       // --------------------------------------------------------------
-      // Fetch data from the Apps Script API
+      // Fetch data via CORS proxy
       // --------------------------------------------------------------
       async function fetchData() {
         try {
-          const response = await fetch(API_URL, {
+          // Use proxy to avoid CORS error
+          const proxyUrl = PROXY_URL + encodeURIComponent(API_URL);
+          const response = await fetch(proxyUrl, {
             method: 'GET',
-            mode: 'cors', // important: some APIs need no-cors, but then you can't read JSON
             headers: {
               'Accept': 'application/json'
             }
@@ -233,9 +239,8 @@
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 
-          // The response might be JSON or maybe JSONP. We assume JSON.
-          const text = await response.text(); // first get as text to debug
-          console.log('Raw response:', text.substring(0, 200)); // log first 200 chars
+          const text = await response.text();
+          console.log('Raw response (via proxy):', text.substring(0, 200));
 
           // Try to parse JSON
           try {
@@ -245,7 +250,7 @@
             throw new Error('Response is not valid JSON: ' + text.substring(0, 100));
           }
         } catch (error) {
-          console.error('Fetch error:', error);
+          console.error('Fetch error (with proxy):', error);
           throw error;
         }
       }
@@ -257,7 +262,6 @@
         try {
           const result = await fetchData();
 
-          // Expect result to have properties: settings and agents (arrays)
           const settingsRows = result.settings || [];
           const agentsRows = result.agents || [];
 
@@ -304,7 +308,6 @@
           renderSlides();
           startSlideShow();
 
-          // Hide loading overlay
           loadingOverlay.style.opacity = '0';
           setTimeout(() => {
             loadingOverlay.style.display = 'none';
@@ -312,7 +315,7 @@
 
         } catch (error) {
           console.error('Failed to load data:', error);
-          slidesContainer.innerHTML = `<div class="no-data-message">⚠️ Failed to load data. Check console for details. URL: ${API_URL}</div>`;
+          slidesContainer.innerHTML = `<div class="no-data-message">⚠️ Failed to load data. Check console for details.<br>URL: ${API_URL}</div>`;
           loadingOverlay.style.opacity = '0';
           setTimeout(() => {
             loadingOverlay.style.display = 'none';
@@ -321,7 +324,7 @@
       }
 
       // --------------------------------------------------------------
-      // Music setup
+      // Music setup (unchanged)
       // --------------------------------------------------------------
       function setupMusic(settings) {
         const musicUrl = settings.music_url;
@@ -369,7 +372,7 @@
       }
 
       // --------------------------------------------------------------
-      // Render slides
+      // Render slides (unchanged)
       // --------------------------------------------------------------
       function renderSlides() {
         if (!slidesData.length) return;
@@ -387,9 +390,6 @@
         triggerConfettiForCurrent();
       }
 
-      // --------------------------------------------------------------
-      // Build HTML for a slide
-      // --------------------------------------------------------------
       function buildSlideHTML(slide, index) {
         const { hero, rank2, rank3, settings } = slide;
         const monthTitle = settings.month_title || 'Current Month';
@@ -467,7 +467,7 @@
       }
 
       // --------------------------------------------------------------
-      // Slideshow controls
+      // Slideshow controls (unchanged)
       // --------------------------------------------------------------
       function startSlideShow() {
         if (slideInterval) clearInterval(slideInterval);
@@ -553,5 +553,27 @@
 
     })();
   </script>
+  <!-- 
+    =========================================================================
+    IMPORTANT: CORS ERROR FIX
+    =========================================================================
+    The error "No 'Access-Control-Allow-Origin' header" occurs because your 
+    Google Apps Script does not include the required CORS header.
+
+    PERMANENT SOLUTION:
+    In your Apps Script code, when you return the data, add:
+    
+      return ContentService
+        .createTextOutput(JSON.stringify(data))
+        .setMimeType(ContentService.MimeType.JSON)
+        .setHeader('Access-Control-Allow-Origin', '*');
+
+    Then redeploy the script as a web app (with access set to "Anyone").
+    After that, you can remove the proxy (PROXY_URL) and use direct fetch.
+
+    The current code uses a free public proxy (allorigins.win) as a temporary 
+    workaround. It may have rate limits; for production, fix the Apps Script.
+    =========================================================================
+  -->
 </body>
 </html>
