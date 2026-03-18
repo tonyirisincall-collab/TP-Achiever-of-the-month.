@@ -1,454 +1,810 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Honor Board · Top Achievers</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #f5f7fb;
-      height: 100vh;
-      width: 100vw;
-      overflow: hidden;
-      color: #1e293b;
-    }
-    .honor-board {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
-    }
-    .slides-container { position: relative; width: 100%; height: 100%; }
-    .slide {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 1.5s ease;
-      transform: scale(1.02);
-      overflow-y: auto;
-      padding: 2rem 2rem 1.5rem;
-      display: flex;
-      flex-direction: column;
-    }
-    .slide.active {
-      opacity: 1;
-      visibility: visible;
-      transform: scale(1);
-      z-index: 10;
-    }
-    .slide::-webkit-scrollbar { width: 6px; }
-    .slide::-webkit-scrollbar-track { background: transparent; }
-    .slide::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 20px; }
-    .board-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      padding: 0.5rem 1rem;
-      background: rgba(255,255,255,0.6);
-      backdrop-filter: blur(8px);
-      border-radius: 60px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.02);
-      border: 1px solid rgba(255,255,255,0.7);
-    }
-    .logo-area { display: flex; align-items: center; gap: 0.75rem; }
-    .company-logo { max-height: 44px; width: auto; border-radius: 12px; }
-    .company-logo-placeholder {
-      font-weight: 600; font-size: 1.25rem; background: #eef2ff;
-      padding: 0.4rem 1rem; border-radius: 40px; color: #1e3a8a;
-    }
-    .month-dept { display: flex; gap: 1rem; align-items: baseline; flex-wrap: wrap; }
-    .month-title {
-      font-weight: 600; font-size: 1.25rem; background: #1e293b;
-      color: white; padding: 0.3rem 1.2rem; border-radius: 40px;
-    }
-    .department {
-      font-weight: 500; color: #475569; background: #f1f5f9;
-      padding: 0.3rem 1.2rem; border-radius: 40px; font-size: 1rem;
-    }
-    .hero-section {
-      flex: 1; display: flex; flex-direction: column; justify-content: center;
-      align-items: center; max-width: 900px; margin: 0 auto; width: 100%;
-    }
-    .hero-avatar {
-      width: 220px; height: 220px; border-radius: 50%; object-fit: cover;
-      box-shadow: 0 30px 40px -20px rgba(0,20,40,0.25), 0 0 0 4px rgba(255,255,255,0.8);
-      margin-bottom: 1.5rem; background: #e2e8f0; transition: transform 0.3s ease;
-    }
-    .hero-avatar.initials-avatar {
-      display: flex; align-items: center; justify-content: center;
-      font-size: 5rem; font-weight: 500; color: #1e293b;
-      background: linear-gradient(135deg, #d9e2ef, #bdd3eb); text-transform: uppercase;
-    }
-    .hero-name {
-      font-size: 3rem; font-weight: 700; letter-spacing: -0.02em;
-      background: linear-gradient(to right, #1e293b, #2d3c53);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      text-align: center; line-height: 1.2;
-    }
-    .hero-title { font-size: 1.3rem; font-weight: 400; color: #4b5565; margin: 0.25rem 0 0.75rem; }
-    .hero-comment {
-      font-size: 1.2rem; font-style: italic; color: #2c3e50; background: #ecfdf5;
-      padding: 0.6rem 1.8rem; border-radius: 60px; margin: 1rem 0 1.2rem;
-      box-shadow: 0 2px 8px rgba(0,80,50,0.05); max-width: 80%;
-    }
-    .metrics {
-      display: flex; flex-wrap: wrap; justify-content: center; gap: 1.8rem; margin: 1.5rem 0;
-    }
-    .metric-item {
-      background: white; border-radius: 40px; padding: 0.5rem 1.8rem;
-      box-shadow: 0 8px 18px -8px rgba(0,34,64,0.08); border: 1px solid rgba(203,213,225,0.4);
-      font-weight: 500; backdrop-filter: blur(4px);
-    }
-    .metric-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; }
-    .metric-value { font-size: 2rem; font-weight: 700; line-height: 1.2; color: #0f172a; }
-    .podium {
-      display: flex; justify-content: center; gap: 2rem; margin-top: 2rem; margin-bottom: 0.5rem; flex-wrap: wrap;
-    }
-    .podium-card {
-      background: white; border-radius: 40px; padding: 1rem 2rem; min-width: 200px;
-      text-align: center; box-shadow: 0 10px 20px -10px rgba(0,0,0,0.08);
-      border: 1px solid #e9eef3; transition: all 0.2s;
-    }
-    .podium-card:hover { transform: translateY(-4px); border-color: #b9d0f0; }
-    .podium-rank { font-size: 0.9rem; font-weight: 600; color: #64748b; text-transform: uppercase; }
-    .podium-name { font-size: 1.5rem; font-weight: 600; margin: 0.2rem 0; }
-    .podium-title { color: #475569; }
-    .music-control {
-      position: fixed; bottom: 20px; right: 20px; background: rgba(255,255,255,0.75);
-      backdrop-filter: blur(12px); border-radius: 60px; padding: 0.45rem 1.2rem 0.45rem 1rem;
-      display: flex; align-items: center; gap: 0.8rem; box-shadow: 0 10px 26px rgba(0,0,0,0.1);
-      border: 1px solid rgba(255,255,255,0.7); z-index: 99; font-size: 0.9rem;
-    }
-    .music-control button {
-      background: #1e293b; border: none; color: white; width: 32px; height: 32px;
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: 0.2s; font-size: 1.1rem;
-    }
-    .music-control button:hover { background: #0f172a; transform: scale(1.05); }
-    .music-control span { max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .loading-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white;
-      display: flex; align-items: center; justify-content: center; z-index: 200;
-      transition: opacity 0.5s;
-    }
-    .loading-spinner {
-      border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%;
-      width: 50px; height: 50px; animation: spin 1s linear infinite;
-    }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .no-data-message {
-      display: flex; align-items: center; justify-content: center; height: 100%;
-      font-size: 1.8rem; color: #94a3b8;
-    }
-    @media (max-width: 700px) {
-      .hero-name { font-size: 2.2rem; }
-      .hero-avatar { width: 160px; height: 160px; font-size: 3.5rem; }
-      .board-header { flex-direction: column; align-items: start; border-radius: 32px; }
-      .metric-value { font-size: 1.5rem; }
-      .podium-card { min-width: 150px; padding: 0.8rem 1.2rem; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Honor Board — In-Call Outsourcing</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏅</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────
+   DESIGN SYSTEM
+───────────────────────────────────── */
+:root {
+  --white:    #FFFFFF;
+  --off:      #F7F8FC;
+  --border:   #E2E6F0;
+  --text:     #0B0F1A;
+  --muted:    #6B7280;
+  --faint:    #9CA3AF;
+  --blue:     #1D4ED8;
+  --blue-s:   #EFF6FF;
+  --blue-b:   rgba(29,78,216,.15);
+  --gold:     #B45309;
+  --gold-s:   #FFFBEB;
+  --gold-b:   rgba(180,83,9,.18);
+  --silver:   #475569;
+  --silver-s: #F8FAFC;
+  --bronze:   #92400E;
+  --green:    #047857;
+  --green-s:  #ECFDF5;
+  --purple:   #6D28D9;
+  --purple-s: #F5F3FF;
+  --font: 'Outfit', -apple-system, sans-serif;
+}
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; overflow:hidden; background:var(--off); }
+body { font-family:var(--font); color:var(--text); display:flex; flex-direction:column; }
+
+/* ─────────────────────────────────────
+   LOADING
+───────────────────────────────────── */
+#loading {
+  position:fixed; inset:0; z-index:9999;
+  background:#fff; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:24px;
+  transition:opacity .6s ease, visibility .6s ease;
+}
+#loading.hide { opacity:0; visibility:hidden; pointer-events:none; }
+.ld-ring {
+  width:80px; height:80px; border-radius:50%;
+  border:3px solid var(--border);
+  border-top-color:var(--blue);
+  animation:spin 1s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+.ld-logo {
+  position:absolute;
+  width:48px; height:48px; border-radius:50%;
+  background:#fff; display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+}
+.ld-logo img { width:44px; height:44px; object-fit:contain; }
+.ld-wrap { position:relative; width:80px; height:80px; display:flex; align-items:center; justify-content:center; }
+.ld-text { font-size:.75rem; font-weight:600; color:var(--faint); letter-spacing:.12em; text-transform:uppercase; }
+
+/* ─────────────────────────────────────
+   TOPBAR
+───────────────────────────────────── */
+#topbar {
+  flex-shrink:0; display:flex; align-items:center;
+  justify-content:space-between; padding:0 40px;
+  height:64px; background:#fff;
+  border-bottom:1px solid var(--border);
+  box-shadow:0 1px 0 var(--border);
+  position:relative; z-index:50;
+}
+.tb-left { display:flex; align-items:center; gap:12px; }
+.tb-logo {
+  width:40px; height:40px; border-radius:10px;
+  overflow:hidden; border:1px solid var(--border);
+  background:#fff; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+}
+.tb-logo img { width:38px; height:38px; object-fit:contain; }
+.tb-brand { line-height:1.2; }
+.tb-name { font-size:.92rem; font-weight:700; color:var(--text); }
+.tb-sub  { font-size:.6rem;  font-weight:400; color:var(--faint); letter-spacing:.02em; }
+
+.tb-center { position:absolute; left:50%; transform:translateX(-50%); text-align:center; }
+.tb-month {
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--blue-s); border:1px solid var(--blue-b);
+  color:var(--blue); font-size:.68rem; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase;
+  padding:5px 14px; border-radius:100px;
+}
+.tb-board { font-size:.78rem; font-weight:600; color:var(--muted); margin-top:2px; }
+
+.tb-right { display:flex; align-items:center; gap:16px; }
+.live-chip {
+  display:flex; align-items:center; gap:5px;
+  background:var(--green-s); border:1px solid rgba(4,120,87,.2);
+  color:var(--green); font-size:.62rem; font-weight:700;
+  letter-spacing:.1em; padding:4px 10px; border-radius:100px;
+}
+.live-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 1.8s ease infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.75)} }
+.tb-time { font-size:.6rem; color:var(--faint); }
+
+/* ─────────────────────────────────────
+   SLIDES AREA
+───────────────────────────────────── */
+#arena { flex:1; position:relative; overflow:hidden; }
+
+.slide {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  padding:32px 40px;
+  opacity:0; transform:translateX(60px);
+  transition:opacity .55s cubic-bezier(.4,0,.2,1), transform .55s cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
+}
+.slide.active  { opacity:1; transform:translateX(0); pointer-events:auto; }
+.slide.exit    { opacity:0; transform:translateX(-60px); }
+
+/* ─────────────────────────────────────
+   #1 HERO SLIDE
+───────────────────────────────────── */
+.hero-layout {
+  display:grid; grid-template-columns:300px 1fr;
+  gap:56px; align-items:center;
+  width:100%; max-width:1020px;
+}
+
+/* Photo */
+.hero-photo-wrap { display:flex; flex-direction:column; align-items:center; gap:20px; }
+.hero-ring-outer {
+  width:230px; height:230px; border-radius:50%; position:relative;
+}
+.hero-ring-spin {
+  position:absolute; inset:-5px; border-radius:50%;
+  background:conic-gradient(#B45309 0%, #F59E0B 35%, #FBBF24 50%, #F59E0B 65%, #B45309 100%);
+  animation:spin 7s linear infinite; z-index:0;
+}
+.hero-ring-inner {
+  position:absolute; inset:6px; border-radius:50%; z-index:1;
+  background:var(--off); overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+}
+.hero-photo-img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.hero-initials {
+  font-size:4.5rem; font-weight:900; color:var(--blue);
+  line-height:1; user-select:none;
+}
+.hero-crown { font-size:2.8rem; filter:drop-shadow(0 3px 8px rgba(0,0,0,.2)); }
+
+/* Info */
+.hero-info {}
+.hero-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--gold-s); border:1px solid var(--gold-b);
+  color:var(--gold); font-size:.62rem; font-weight:800;
+  letter-spacing:.14em; text-transform:uppercase;
+  padding:5px 14px; border-radius:100px; margin-bottom:14px;
+}
+.hero-name {
+  font-size:clamp(2rem,4vw,3.2rem); font-weight:900;
+  line-height:1.0; color:var(--text); margin-bottom:6px;
+}
+.hero-role {
+  font-size:.82rem; font-weight:500; color:var(--muted);
+  background:var(--off); border:1px solid var(--border);
+  display:inline-block; padding:4px 12px; border-radius:8px; margin-bottom:22px;
+}
+.hero-quote {
+  font-size:.95rem; font-weight:300; color:var(--muted);
+  line-height:1.75; border-left:3px solid var(--blue);
+  padding-left:16px; margin-bottom:28px; font-style:italic;
+  max-width:480px;
+}
+.hero-metrics { display:flex; gap:12px; flex-wrap:wrap; }
+.metric-card {
+  flex:1; min-width:90px; max-width:140px;
+  background:#fff; border:1.5px solid var(--border);
+  border-radius:14px; padding:14px 16px;
+  position:relative; overflow:hidden;
+}
+.metric-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+}
+.mc-sales::before { background:var(--green); }
+.mc-dos::before   { background:var(--blue); }
+.mc-tasks::before { background:var(--purple); }
+.mc-label { font-size:.58rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--faint); margin-bottom:6px; }
+.mc-val   { font-size:1.6rem; font-weight:800; line-height:1; }
+.mc-sales .mc-val { color:var(--green); }
+.mc-dos   .mc-val { color:var(--blue); }
+.mc-tasks .mc-val { color:var(--purple); }
+
+/* ─────────────────────────────────────
+   #2/#3 SPLIT SLIDE
+───────────────────────────────────── */
+.split-layout {
+  display:grid; grid-template-columns:340px 1fr;
+  gap:40px; align-items:start;
+  width:100%; max-width:960px;
+}
+.split-card {
+  background:#fff; border:1.5px solid var(--border);
+  border-radius:24px; padding:32px 24px;
+  display:flex; flex-direction:column; align-items:center;
+  text-align:center; position:relative; overflow:hidden;
+  box-shadow:0 2px 20px rgba(0,0,0,.04);
+}
+.split-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:4px;
+}
+.sc-silver::before { background:linear-gradient(90deg,#64748B,#94A3B8); }
+.sc-bronze::before { background:linear-gradient(90deg,#92400E,#CA8A04); }
+.sc-other::before  { background:linear-gradient(90deg,var(--blue),var(--purple)); }
+
+.split-ring-wrap { width:130px; height:130px; border-radius:50%; position:relative; margin-bottom:14px; }
+.split-ring-spin {
+  position:absolute; inset:-4px; border-radius:50%; animation:spin 9s linear infinite; z-index:0;
+}
+.sr-silver { background:conic-gradient(#64748B,#CBD5E1,#64748B); }
+.sr-bronze { background:conic-gradient(#92400E,#D97706,#92400E); }
+.sr-other  { background:conic-gradient(var(--blue),var(--purple),var(--blue)); }
+.split-ring-inner {
+  position:absolute; inset:4px; border-radius:50%; z-index:1;
+  background:var(--off); overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+}
+.split-ring-inner img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.split-initials { font-size:2.6rem; font-weight:900; color:var(--blue); user-select:none; }
+.split-medal { font-size:2rem; margin-bottom:8px; }
+.split-rank-chip {
+  font-size:.58rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase;
+  padding:3px 10px; border-radius:100px; margin-bottom:10px; display:inline-block;
+}
+.src-silver { background:rgba(100,116,139,.1); color:var(--silver); border:1px solid rgba(100,116,139,.22); }
+.src-bronze { background:rgba(146,64,14,.08); color:var(--bronze); border:1px solid rgba(146,64,14,.2); }
+.src-other  { background:var(--blue-s); color:var(--blue); border:1px solid var(--blue-b); }
+.split-name { font-size:1.5rem; font-weight:800; line-height:1.1; margin-bottom:4px; }
+.split-role { font-size:.72rem; color:var(--muted); margin-bottom:12px; }
+.split-quote { font-size:.78rem; color:var(--muted); font-style:italic; line-height:1.65; margin-bottom:14px; border-left:2px solid var(--border); padding-left:10px; text-align:left; }
+.split-pills { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
+.pill { font-size:.7rem; font-weight:600; padding:5px 12px; border-radius:10px; }
+.p-sales { background:var(--green-s); color:var(--green); }
+.p-dos   { background:var(--blue-s); color:var(--blue); }
+.p-tasks { background:var(--purple-s); color:var(--purple); }
+
+/* Rest list (right side of split) */
+.rest-col { display:flex; flex-direction:column; justify-content:center; gap:10px; }
+.rest-label {
+  font-size:.6rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--faint); display:flex; align-items:center; gap:10px; margin-bottom:4px;
+}
+.rest-label::after { content:''; flex:1; height:1px; background:var(--border); }
+.rest-row {
+  background:#fff; border:1.5px solid var(--border); border-radius:12px;
+  padding:11px 14px; display:grid;
+  grid-template-columns:26px 36px 1fr auto;
+  align-items:center; gap:10px;
+  transition:transform .18s;
+}
+.rest-row:hover { transform:translateX(4px); }
+.rest-num { font-size:.75rem; font-weight:800; color:var(--faint); }
+.rest-av {
+  width:34px; height:34px; border-radius:50%;
+  background:var(--off); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:.7rem; font-weight:800; color:var(--blue); overflow:hidden;
+}
+.rest-av img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.rest-info {}
+.rest-name { font-size:.83rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.rest-role { font-size:.6rem; color:var(--muted); margin-top:1px; }
+.rest-vals { display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end; }
+.rv { font-size:.6rem; font-weight:700; padding:2px 7px; border-radius:6px; }
+.rv-s { background:var(--green-s); color:var(--green); }
+.rv-d { background:var(--blue-s); color:var(--blue); }
+.rv-t { background:var(--purple-s); color:var(--purple); }
+
+/* ─────────────────────────────────────
+   CELEBRATION OVERLAY
+───────────────────────────────────── */
+#celeb {
+  position:fixed; inset:0; z-index:800;
+  display:none; align-items:center; justify-content:center;
+  background:rgba(11,15,26,.6); backdrop-filter:blur(6px);
+}
+#celeb.show { display:flex; }
+#confetti-canvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+.celeb-box {
+  position:relative; z-index:2;
+  background:#fff; border-radius:28px;
+  padding:44px 60px; text-align:center;
+  border:2px solid #FCD34D;
+  box-shadow:0 32px 80px rgba(0,0,0,.25);
+  animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes popIn { from{opacity:0;transform:scale(.6) translateY(40px)} to{opacity:1;transform:scale(1) translateY(0)} }
+.celeb-box.out { animation:popOut .4s ease both; }
+@keyframes popOut { to{opacity:0;transform:scale(.85)} }
+.celeb-trophy { font-size:4rem; line-height:1; margin-bottom:12px; }
+.celeb-name { font-size:2.2rem; font-weight:900; color:var(--text); line-height:1.1; }
+.celeb-label { font-size:.82rem; color:var(--muted); margin-top:8px; font-weight:500; }
+
+/* ─────────────────────────────────────
+   PROGRESS + DOTS
+───────────────────────────────────── */
+#progress {
+  position:absolute; bottom:0; left:0; right:0; height:3px;
+  background:rgba(0,0,0,.06); z-index:20;
+}
+#progress-fill {
+  height:100%;
+  background:linear-gradient(90deg,var(--blue),var(--purple));
+  border-radius:0 3px 3px 0; width:0%;
+}
+
+#dotsbar {
+  flex-shrink:0; height:44px;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  background:#fff; border-top:1px solid var(--border);
+}
+.dot {
+  width:7px; height:7px; border-radius:100px; background:var(--border);
+  cursor:pointer; transition:background .25s, width .3s, transform .25s;
+}
+.dot.on { background:var(--blue); width:22px; transform:none; }
+
+/* ─────────────────────────────────────
+   MUSIC
+───────────────────────────────────── */
+#music {
+  position:fixed; bottom:56px; right:24px; z-index:100;
+  background:#fff; border:1.5px solid var(--border);
+  border-radius:14px; padding:11px 14px;
+  display:none; align-items:center; gap:10px;
+  box-shadow:0 4px 24px rgba(0,0,0,.08); min-width:190px;
+}
+.mus-btn {
+  width:30px; height:30px; border-radius:8px; border:1px solid var(--border);
+  background:var(--blue-s); color:var(--blue); cursor:pointer;
+  display:flex; align-items:center; justify-content:center; font-size:.8rem;
+  transition:background .2s, color .2s;
+}
+.mus-btn:hover { background:var(--blue); color:#fff; }
+.mus-info { flex:1; min-width:0; }
+.mus-title { font-size:.7rem; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.mus-state { font-size:.58rem; color:var(--faint); margin-top:1px; }
+.mus-bars { display:flex; align-items:flex-end; gap:2px; height:13px; }
+.mb { width:3px; border-radius:2px; background:var(--blue); animation:mba .8s ease-in-out infinite alternate; }
+.mb:nth-child(1){height:5px;animation-delay:0s}
+.mb:nth-child(2){height:11px;animation-delay:.14s}
+.mb:nth-child(3){height:7px;animation-delay:.28s}
+.mb:nth-child(4){height:12px;animation-delay:.07s}
+.mb:nth-child(5){height:4px;animation-delay:.21s}
+@keyframes mba { from{transform:scaleY(.25)} to{transform:scaleY(1)} }
+.mus-bars.off .mb { animation-play-state:paused; }
+
+/* ─────────────────────────────────────
+   ERROR BANNER
+───────────────────────────────────── */
+#errbanner {
+  position:fixed; top:72px; left:50%; transform:translateX(-50%); z-index:300;
+  background:#FEF2F2; border:1px solid #FECACA; color:#DC2626;
+  padding:8px 18px; border-radius:10px; font-size:.73rem;
+  display:none; white-space:nowrap;
+}
+#errbanner.show { display:block; }
+
+/* ─────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────── */
+@media(max-width:860px){
+  .hero-layout { grid-template-columns:1fr; gap:28px; }
+  .hero-ring-outer { width:150px; height:150px; }
+  .hero-photo-wrap { flex-direction:row; gap:20px; align-items:center; }
+  .hero-crown { font-size:1.8rem; }
+  .split-layout { grid-template-columns:1fr; }
+  #topbar { padding:0 20px; }
+  .slide { padding:20px; }
+  .tb-center { display:none; }
+}
+</style>
 </head>
 <body>
-  <div class="honor-board">
-    <div id="loadingOverlay" class="loading-overlay"><div class="loading-spinner"></div></div>
-    <div id="slidesContainer" class="slides-container"></div>
-    <div id="musicControl" class="music-control" style="display: none;">
-      <button id="musicPlayPauseBtn">▶️</button>
-      <span id="musicTitle">background music</span>
-      <input type="range" id="musicVolume" min="0" max="1" step="0.05" value="0.2" style="width: 60px;">
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="ld-wrap">
+    <div class="ld-ring"></div>
+    <div class="ld-logo"><img src="data:image/jpeg;base64,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" alt="logo"></div>
+  </div>
+  <div class="ld-text">Loading Honor Board</div>
+</div>
+
+<!-- CELEBRATION -->
+<div id="celeb">
+  <canvas id="confetti-canvas"></canvas>
+  <div class="celeb-box" id="celeb-box">
+    <div class="celeb-trophy">🏆</div>
+    <div class="celeb-name" id="celeb-name">—</div>
+    <div class="celeb-label" id="celeb-label">Top Performer of the Month</div>
+  </div>
+</div>
+
+<audio id="bgaudio" loop></audio>
+
+<!-- MUSIC -->
+<div id="music">
+  <button class="mus-btn" id="mus-btn">▶</button>
+  <div class="mus-info">
+    <div class="mus-title" id="mus-title">Now Playing</div>
+    <div class="mus-state" id="mus-state">Tap to play</div>
+  </div>
+  <div class="mus-bars off" id="mus-bars">
+    <div class="mb"></div><div class="mb"></div><div class="mb"></div>
+    <div class="mb"></div><div class="mb"></div>
+  </div>
+</div>
+
+<!-- ERROR -->
+<div id="errbanner">⚠ Cannot reach Google Sheets — showing demo data</div>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="tb-left">
+    <div class="tb-logo"><img id="tb-logo" src="data:image/jpeg;base64,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" alt="In-Call Outsourcing"></div>
+    <div class="tb-brand">
+      <div class="tb-name" id="tb-name">In-Call Outsourcing</div>
+      <div class="tb-sub">Your Efforts Are Always Appreciated</div>
     </div>
   </div>
+  <div class="tb-center">
+    <div class="tb-month" id="tb-month">⭐ Loading...</div>
+    <div class="tb-board">Honor Board</div>
+  </div>
+  <div class="tb-right">
+    <div class="live-chip"><div class="live-dot"></div>LIVE</div>
+    <div class="tb-time" id="tb-time">Syncing…</div>
+  </div>
+</div>
 
-  <script>
-    (function() {
-      // --------------------------------------------------------------
-      // ضع هنا رابط الـ Web app الذي حصلت عليه من Apps Script
-      // --------------------------------------------------------------
-      const API_URL = 'https://script.google.com/macros/s/AKfycbxsemy4uLOUi83jPd62vqWtt2DeuJEcbFAlfLpRcECNhSa_NK87dfBQIJP2tnX05Cexfw/exec';
+<!-- ARENA -->
+<div id="arena">
+  <div id="progress"><div id="progress-fill"></div></div>
+</div>
 
-      // الحالة العامة
-      let slidesData = [];
-      let currentSlideIndex = 0;
-      let slideInterval = null;
-      let confettiInterval = null;
-      let refreshInterval = null;
-      let audioElement = null;
-      let isPlaying = false;
+<!-- DOTS -->
+<div id="dotsbar" id="dotsbar"></div>
 
-      const slidesContainer = document.getElementById('slidesContainer');
-      const loadingOverlay = document.getElementById('loadingOverlay');
-      const musicControlDiv = document.getElementById('musicControl');
-      const musicPlayBtn = document.getElementById('musicPlayPauseBtn');
-      const musicTitleSpan = document.getElementById('musicTitle');
-      const musicVolumeInput = document.getElementById('musicVolume');
+<script>
+// ══════════════════════════════════════════════════
+//  ★ CONFIG — paste your Sheet ID here after setup
+// ══════════════════════════════════════════════════
+const SHEET_ID    = 'YOUR_GOOGLE_SHEET_ID_HERE';
+const SLIDE_MS    = 30000;   // 30 seconds per slide
+const CELEB_MS    = 5000;    // celebration duration
 
-      // --------------------------------------------------------------
-      // جلب البيانات مباشرة (بدون proxy)
-      // --------------------------------------------------------------
-      async function fetchData() {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        return await response.json();
-      }
+// ── Demo data (shown until Sheet ID is set) ──────
+const DEMO = {
+  s: {
+    month:      'March 2025',
+    department: 'Sales Floor',
+    company:    'In-Call Outsourcing',
+    logo:       '',
+    music_url:  '',
+    music_name: '🎵 Team Vibes',
+  },
+  a: [
+    { rank:1, name:'Ahmed Hassan',   role:'Star Agent',   comment:'Absolutely unstoppable — the whole team looks up to you.',  img:'', sales:'$14,200', dos:'',    tasks:''   },
+    { rank:2, name:'Sara Mohamed',   role:'Top Closer',   comment:'Incredible consistency every single day. Keep it up!',      img:'', sales:'',        dos:'102', tasks:''   },
+    { rank:3, name:'Khaled Youssef', role:'Deal Maker',   comment:'Outstanding results in a tough month.',                     img:'', sales:'',        dos:'',    tasks:'47' },
+    { rank:4, name:'Nour El-Din',    role:'Rising Star',  comment:'',                                                           img:'', sales:'$7,500',  dos:'',    tasks:''   },
+    { rank:5, name:'Dina Fathy',     role:'Closer',       comment:'',                                                           img:'', sales:'',        dos:'79',  tasks:''   },
+  ]
+};
 
-      async function fetchAllAndRender() {
-        try {
-          const result = await fetchData();
+// ── State ──────────────────────────────────────
+let agents=[], slideEls=[], cur=0;
+let progTimer=null, autoTimer=null, isPlaying=false;
+let confAnim=null;
 
-          const settingsRows = result.settings || [];
-          const agentsRows = result.agents || [];
+// ── Sheets fetch ───────────────────────────────
+async function getSheet(name){
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(name)}`;
+  const r=await fetch(url), t=await r.text();
+  return JSON.parse(t.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]).table;
+}
+function parseKV(tb){
+  const o={};
+  if(!tb?.rows) return o;
+  tb.rows.forEach(r=>{
+    const k=(r.c[0]?.v||'').toString().trim().toLowerCase().replace(/\s+/g,'_');
+    const v=(r.c[1]?.v||'').toString().trim();
+    if(k) o[k]=v;
+  });
+  return o;
+}
+function parseAgents(tb){
+  if(!tb?.rows) return[];
+  const h=tb.cols.map(c=>(c.label||'').trim().toLowerCase().replace(/\s+/g,'_').replace(/'/g,''));
+  return tb.rows.filter(r=>r.c&&r.c[0]?.v).map(r=>{
+    const o={}; h.forEach((k,i)=>o[k]=(r.c[i]?.v||'').toString().trim()); return o;
+  });
+}
+async function loadData(){
+  if(SHEET_ID==='YOUR_GOOGLE_SHEET_ID_HERE') return {s:DEMO.s, a:DEMO.a};
+  try {
+    const [st,at]=await Promise.all([getSheet('settings'),getSheet('agents')]);
+    const raw=parseKV(st);
+    const s={
+      month:      raw.month_title||raw.month||'This Month',
+      department: raw.department||'',
+      company:    raw.company_name||raw.company||'In-Call Outsourcing',
+      logo:       raw.company_logo||raw.logo||'',
+      music_url:  raw.music_url||'',
+      music_name: raw.music_title||raw.music_name||'🎵 Now Playing',
+    };
+    const a=parseAgents(at).sort((x,y)=>+x.rank-+y.rank);
+    return {s,a};
+  } catch(e){
+    document.getElementById('errbanner').classList.add('show');
+    return {s:DEMO.s, a:DEMO.a};
+  }
+}
 
-          const settings = {};
-          settingsRows.forEach(row => {
-            if (row.key && row.value !== undefined) {
-              settings[row.key] = row.value;
-            }
-          });
+// ── Helpers ────────────────────────────────────
+const INI = n => (n||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+const MEDALS=['🏆','🥈','🥉'];
 
-          setupMusic(settings);
+function metricsOf(a){
+  const m=[];
+  if((a.sales||'').trim())                    m.push({l:'Sales',v:a.sales,t:'sales'});
+  if((a.dos||a['dos_amount']||'').trim())     m.push({l:"DO's", v:a.dos||a.dos_amount,t:'dos'});
+  if((a.tasks||'').trim())                    m.push({l:'Tasks',v:a.tasks,t:'tasks'});
+  return m;
+}
+function photoHTML(img,name,cls,initCls){
+  if(img&&img.startsWith('http'))
+    return`<img src="${img}" alt="${name}" onerror="this.outerHTML='<span class=\\'${initCls}\\'>${INI(name)}</span>'" class="${cls}">`;
+  return`<span class="${initCls}">${INI(name)}</span>`;
+}
 
-          const agents = agentsRows.map(row => ({
-            rank: String(row.rank || '').trim(),
-            name: row.name || '',
-            title: row.title || '',
-            comment: row.comment || '',
-            image_url: row.image_url || '',
-            sales: row.sales || '',
-            dos: row.dos || '',
-            tasks: row.tasks || ''
-          })).filter(a => a.rank && a.name);
+// ── Build slides ───────────────────────────────
+function buildSlides(list){
+  const arena=document.getElementById('arena');
+  arena.querySelectorAll('.slide').forEach(s=>s.remove());
+  slideEls=[];
 
-          const rank1Agents = agents.filter(a => a.rank === '1');
-          const rank2 = agents.find(a => a.rank === '2');
-          const rank3 = agents.find(a => a.rank === '3');
+  list.forEach((ag,i)=>{
+    const rank=+ag.rank||(i+1);
+    const metrics=metricsOf(ag);
+    const el=document.createElement('div');
+    el.className='slide';
 
-          if (rank1Agents.length === 0) {
-            slidesContainer.innerHTML = `<div class="no-data-message">✨ No top achievers yet ✨</div>`;
-            return;
-          }
-
-          slidesData = rank1Agents.map(hero => ({
-            hero,
-            rank2,
-            rank3,
-            settings
-          }));
-
-          renderSlides();
-          startSlideShow();
-
-          loadingOverlay.style.opacity = '0';
-          setTimeout(() => {
-            loadingOverlay.style.display = 'none';
-          }, 500);
-
-        } catch (error) {
-          console.error('Failed to load data:', error);
-          slidesContainer.innerHTML = `<div class="no-data-message">⚠️ Failed to load data. Check console.</div>`;
-          loadingOverlay.style.opacity = '0';
-          setTimeout(() => {
-            loadingOverlay.style.display = 'none';
-          }, 500);
-        }
-      }
-
-      // باقي الدوال (setupMusic, renderSlides, buildSlideHTML, ...)
-      function setupMusic(settings) {
-        const musicUrl = settings.music_url;
-        const musicTitle = settings.music_title || 'background track';
-        if (!musicUrl) {
-          musicControlDiv.style.display = 'none';
-          return;
-        }
-        if (audioElement) audioElement.pause();
-        audioElement = new Audio(musicUrl);
-        audioElement.loop = true;
-        audioElement.volume = 0.2;
-        audioElement.load();
-        musicTitleSpan.textContent = musicTitle;
-        musicControlDiv.style.display = 'flex';
-        audioElement.play().then(() => {
-          isPlaying = true;
-          musicPlayBtn.textContent = '⏸️';
-        }).catch(() => {
-          isPlaying = false;
-          musicPlayBtn.textContent = '▶️';
-        });
-        musicPlayBtn.onclick = () => {
-          if (!audioElement) return;
-          if (isPlaying) {
-            audioElement.pause();
-            musicPlayBtn.textContent = '▶️';
-          } else {
-            audioElement.play();
-            musicPlayBtn.textContent = '⏸️';
-          }
-          isPlaying = !isPlaying;
-        };
-        musicVolumeInput.addEventListener('input', (e) => {
-          if (audioElement) {
-            audioElement.volume = parseFloat(e.target.value);
-          }
-        });
-      }
-
-      function renderSlides() {
-        if (!slidesData.length) return;
-        let slidesHTML = '';
-        slidesData.forEach((slide, idx) => {
-          slidesHTML += buildSlideHTML(slide, idx);
-        });
-        slidesContainer.innerHTML = slidesHTML;
-        const firstSlide = document.querySelector('.slide');
-        if (firstSlide) firstSlide.classList.add('active');
-        triggerConfettiForCurrent();
-      }
-
-      function buildSlideHTML(slide, index) {
-        const { hero, rank2, rank3, settings } = slide;
-        const monthTitle = settings.month_title || 'Current Month';
-        const department = settings.department || 'Department';
-        const companyName = settings.company_name || 'Company';
-        const companyLogo = settings.company_logo || '';
-        const heroImage = hero.image_url || '';
-        const heroInitials = getInitials(hero.name);
-        const metricsExist = hero.sales || hero.dos || hero.tasks;
-
-        return `
-          <div class="slide" data-index="${index}">
-            <div class="board-header">
-              <div class="logo-area">
-                ${companyLogo ? `<img class="company-logo" src="${companyLogo}" alt="${companyName}" loading="lazy">` : `<span class="company-logo-placeholder">${companyName}</span>`}
-              </div>
-              <div class="month-dept">
-                <span class="month-title">${escapeHTML(monthTitle)}</span>
-                <span class="department">${escapeHTML(department)}</span>
+    if(rank===1){
+      // ── Hero layout
+      const mHTML=metrics.map(m=>
+        `<div class="metric-card mc-${m.t}">
+           <div class="mc-label">${m.l}</div>
+           <div class="mc-val">${m.v}</div>
+         </div>`).join('');
+      el.innerHTML=`
+        <div class="hero-layout">
+          <div class="hero-photo-wrap">
+            <div class="hero-ring-outer">
+              <div class="hero-ring-spin"></div>
+              <div class="hero-ring-inner">
+                ${photoHTML(ag.img||ag.image_url,ag.name,'hero-photo-img','hero-initials')}
               </div>
             </div>
-            <div class="hero-section">
-              ${heroImage ? `<img class="hero-avatar" src="${heroImage}" alt="${hero.name}" loading="lazy">` : `<div class="hero-avatar initials-avatar">${heroInitials}</div>`}
-              <div class="hero-name">${escapeHTML(hero.name)}</div>
-              <div class="hero-title">${escapeHTML(hero.title || 'Top Achiever')}</div>
-              ${hero.comment ? `<div class="hero-comment">“${escapeHTML(hero.comment)}”</div>` : ''}
-              ${metricsExist ? `<div class="metrics">
-                ${hero.sales ? `<div class="metric-item"><div class="metric-label">Sales</div><div class="metric-value" data-count="${hero.sales}">0</div></div>` : ''}
-                ${hero.dos ? `<div class="metric-item"><div class="metric-label">DOS</div><div class="metric-value" data-count="${hero.dos}">0</div></div>` : ''}
-                ${hero.tasks ? `<div class="metric-item"><div class="metric-label">Tasks</div><div class="metric-value" data-count="${hero.tasks}">0</div></div>` : ''}
-              </div>` : ''}
-              <div class="podium">
-                ${rank2 ? `<div class="podium-card"><div class="podium-rank">Rank 2</div><div class="podium-name">${escapeHTML(rank2.name)}</div><div class="podium-title">${escapeHTML(rank2.title || '')}</div></div>` : ''}
-                ${rank3 ? `<div class="podium-card"><div class="podium-rank">Rank 3</div><div class="podium-name">${escapeHTML(rank3.name)}</div><div class="podium-title">${escapeHTML(rank3.title || '')}</div></div>` : ''}
-              </div>
-            </div>
+            <div class="hero-crown">🏆</div>
           </div>
-        `;
-      }
+          <div class="hero-info">
+            <div class="hero-badge">⭐ #1 — Gold</div>
+            <div class="hero-name">${ag.name}</div>
+            ${ag.role||ag.title?`<div class="hero-role">${ag.role||ag.title}</div>`:''}
+            ${ag.comment?`<div class="hero-quote">"${ag.comment}"</div>`:''}
+            ${mHTML?`<div class="hero-metrics">${mHTML}</div>`:''}
+          </div>
+        </div>`;
+    } else {
+      // ── Split layout
+      const sc  = rank===2?'sc-silver':rank===3?'sc-bronze':'sc-other';
+      const srs = rank===2?'sr-silver':rank===3?'sr-bronze':'sr-other';
+      const src = rank===2?'src-silver':rank===3?'src-bronze':'src-other';
+      const rl  = rank===2?'#2 — Silver':rank===3?'#3 — Bronze':`#${rank}`;
+      const med = MEDALS[rank-1]||'🏅';
+      const pills=metrics.map(m=>`<span class="pill p-${m.t}">${m.l}: ${m.v}</span>`).join('');
+      const rest=list.filter(x=>+x.rank>rank).slice(0,6).map(x=>{
+        const rv=metricsOf(x).map(m=>`<span class="rv rv-${m.t[0]}">${m.v}</span>`).join('');
+        const av=x.img&&x.img.startsWith('http')
+          ?`<img src="${x.img}" alt="" onerror="this.outerHTML='${INI(x.name)}'">` : INI(x.name);
+        return`<div class="rest-row">
+          <div class="rest-num">#${+x.rank||'?'}</div>
+          <div class="rest-av">${av}</div>
+          <div class="rest-info">
+            <div class="rest-name">${x.name}</div>
+            ${x.role||x.title?`<div class="rest-role">${x.role||x.title}</div>`:''}
+          </div>
+          <div class="rest-vals">${rv}</div>
+        </div>`;
+      }).join('');
+      el.innerHTML=`
+        <div class="split-layout">
+          <div class="split-card ${sc}">
+            <div class="split-ring-wrap">
+              <div class="split-ring-spin ${srs}"></div>
+              <div class="split-ring-inner">
+                ${photoHTML(ag.img||ag.image_url,ag.name,'','split-initials')}
+              </div>
+            </div>
+            <div class="split-medal">${med}</div>
+            <span class="split-rank-chip ${src}">${rl}</span>
+            <div class="split-name">${ag.name}</div>
+            ${ag.role||ag.title?`<div class="split-role">${ag.role||ag.title}</div>`:''}
+            ${ag.comment?`<div class="split-quote">"${ag.comment}"</div>`:''}
+            ${pills?`<div class="split-pills">${pills}</div>`:''}
+          </div>
+          <div class="rest-col">
+            ${rest?`<div class="rest-label">Leaderboard</div>`:''}
+            ${rest}
+          </div>
+        </div>`;
+    }
 
-      function escapeHTML(str) {
-        if (!str) return '';
-        return String(str).replace(/[&<>"]/g, function(m) {
-          if (m === '&') return '&amp;';
-          if (m === '<') return '&lt;';
-          if (m === '>') return '&gt;';
-          if (m === '"') return '&quot;';
-          return m;
-        });
-      }
+    arena.insertBefore(el, document.getElementById('progress'));
+    slideEls.push(el);
+  });
 
-      function getInitials(name) {
-        if (!name) return '?';
-        const parts = name.trim().split(/\s+/);
-        if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-        return (parts[0].charAt(0) + parts[parts.length-1].charAt(0)).toUpperCase();
-      }
+  buildDots(list);
+}
 
-      function startSlideShow() {
-        if (slideInterval) clearInterval(slideInterval);
-        slideInterval = setInterval(nextSlide, 30000);
-      }
+// ── Dots ───────────────────────────────────────
+function buildDots(list){
+  const bar=document.getElementById('dotsbar');
+  bar.innerHTML='';
+  list.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='dot'+(i===0?' on':'');
+    d.addEventListener('click',()=>goTo(i,true));
+    bar.appendChild(d);
+  });
+}
 
-      function nextSlide() {
-        if (!slidesData.length) return;
-        const slides = document.querySelectorAll('.slide');
-        if (slides.length === 0) return;
-        slides[currentSlideIndex].classList.remove('active');
-        currentSlideIndex = (currentSlideIndex + 1) % slides.length;
-        slides[currentSlideIndex].classList.add('active');
-        animateCounters(currentSlideIndex);
-        triggerConfettiForCurrent();
-      }
+// ── Go to slide ────────────────────────────────
+function goTo(idx,manual=false){
+  if(!slideEls.length) return;
+  idx=((idx%slideEls.length)+slideEls.length)%slideEls.length;
 
-      function triggerConfettiForCurrent() {
-        if (confettiInterval) clearInterval(confettiInterval);
-        const burst = () => {
-          confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, startVelocity: 20, colors: ['#2563eb', '#7c3aed', '#db2777'] });
-        };
-        burst();
-        confettiInterval = setInterval(burst, 400);
-        setTimeout(() => {
-          clearInterval(confettiInterval);
-          confettiInterval = null;
-        }, 5000);
-      }
+  if(slideEls[cur]){ slideEls[cur].classList.remove('active'); slideEls[cur].classList.add('exit'); }
+  const old=cur; cur=idx;
 
-      function animateCounters(slideIndex) {
-        const slide = document.querySelector(`.slide[data-index="${slideIndex}"]`);
-        if (!slide) return;
-        const counters = slide.querySelectorAll('.metric-value');
-        counters.forEach(counter => {
-          const target = parseInt(counter.getAttribute('data-count'), 10) || 0;
-          if (target === 0) return;
-          let current = 0;
-          const step = Math.ceil(target / 40);
-          const timer = setInterval(() => {
-            current += step;
-            if (current >= target) {
-              counter.textContent = target;
-              clearInterval(timer);
-            } else {
-              counter.textContent = current;
-            }
-          }, 25);
-        });
-      }
+  const willCelebrate = !manual && +agents[cur]?.rank===1 && old!==0;
 
-      function startAutoRefresh() {
-        if (refreshInterval) clearInterval(refreshInterval);
-        refreshInterval = setInterval(async () => {
-          await fetchAllAndRender();
-          if (slidesData.length > 0) {
-            const slides = document.querySelectorAll('.slide');
-            if (slides.length > currentSlideIndex) {
-              slides.forEach(s => s.classList.remove('active'));
-              slides[currentSlideIndex % slides.length].classList.add('active');
-              animateCounters(currentSlideIndex % slides.length);
-            } else {
-              currentSlideIndex = 0;
-              document.querySelector('.slide')?.classList.add('active');
-              animateCounters(0);
-            }
-          }
-        }, 60000);
-      }
+  if(willCelebrate){
+    showCeleb(agents[cur]);
+    setTimeout(()=>activateSlide(), CELEB_MS);
+  } else {
+    activateSlide();
+  }
+  startProg();
+  syncDots();
+}
+function activateSlide(){
+  slideEls.forEach((s,i)=>{ s.classList.remove('active','exit'); if(i===cur) s.classList.add('active'); });
+}
+function syncDots(){
+  document.querySelectorAll('#dotsbar .dot').forEach((d,i)=>d.classList.toggle('on',i===cur));
+}
 
-      // بدء التطبيق
-      fetchAllAndRender();
-      startAutoRefresh();
-    })();
-  </script>
+// ── Auto advance ───────────────────────────────
+function startAuto(){
+  clearTimeout(autoTimer);
+  autoTimer=setTimeout(()=>{ goTo(cur+1); startAuto(); }, SLIDE_MS);
+}
+function resetAuto(){ clearTimeout(autoTimer); startAuto(); }
+
+// ── Progress ───────────────────────────────────
+function startProg(){
+  clearInterval(progTimer);
+  const fill=document.getElementById('progress-fill');
+  fill.style.width='0%';
+  const t0=Date.now();
+  progTimer=setInterval(()=>{
+    const p=Math.min(100,(Date.now()-t0)/SLIDE_MS*100);
+    fill.style.width=p+'%';
+    if(p>=100){ clearInterval(progTimer); goTo(cur+1); startAuto(); }
+  },60);
+}
+
+// ── Celebration + Confetti ────────────────────
+function showCeleb(agent){
+  document.getElementById('celeb-name').textContent=agent.name;
+  document.getElementById('celeb-label').textContent=
+    `#1 · ${agent.role||agent.title||'Top Performer'} · ${document.getElementById('tb-month').textContent.replace('⭐ ','')}`;
+  const box=document.getElementById('celeb-box');
+  box.classList.remove('out');
+  document.getElementById('celeb').classList.add('show');
+  launchConfetti();
+  setTimeout(()=>{
+    box.classList.add('out');
+    setTimeout(()=>{ document.getElementById('celeb').classList.remove('show'); stopConfetti(); },450);
+  }, CELEB_MS-500);
+}
+function launchConfetti(){
+  const cvs=document.getElementById('confetti-canvas');
+  const ctx=cvs.getContext('2d');
+  cvs.width=window.innerWidth; cvs.height=window.innerHeight;
+  const cols=['#1D4ED8','#6D28D9','#B45309','#047857','#EC4899','#F59E0B','#fff'];
+  const bits=Array.from({length:140},()=>({
+    x:Math.random()*cvs.width, y:Math.random()*-cvs.height,
+    w:6+Math.random()*8, h:4+Math.random()*4,
+    c:cols[Math.floor(Math.random()*cols.length)],
+    vx:(Math.random()-.5)*3.5, vy:2.5+Math.random()*3.5,
+    r:Math.random()*Math.PI*2, vr:(Math.random()-.5)*.15,
+  }));
+  function draw(){
+    ctx.clearRect(0,0,cvs.width,cvs.height);
+    bits.forEach(b=>{
+      ctx.save(); ctx.translate(b.x,b.y); ctx.rotate(b.r);
+      ctx.fillStyle=b.c; ctx.fillRect(-b.w/2,-b.h/2,b.w,b.h); ctx.restore();
+      b.x+=b.vx; b.y+=b.vy; b.r+=b.vr;
+      if(b.y>cvs.height){ b.y=-20; b.x=Math.random()*cvs.width; }
+    });
+    confAnim=requestAnimationFrame(draw);
+  }
+  draw();
+}
+function stopConfetti(){
+  cancelAnimationFrame(confAnim);
+  const c=document.getElementById('confetti-canvas');
+  c.getContext('2d').clearRect(0,0,c.width,c.height);
+}
+
+// ── Music ──────────────────────────────────────
+document.getElementById('mus-btn').addEventListener('click',()=>{
+  const a=document.getElementById('bgaudio');
+  const bars=document.getElementById('mus-bars');
+  const btn=document.getElementById('mus-btn');
+  const st=document.getElementById('mus-state');
+  if(!a.src||a.src===location.href) return;
+  if(isPlaying){ a.pause(); btn.textContent='▶'; bars.classList.add('off'); st.textContent='Paused'; }
+  else { a.play().catch(()=>{}); btn.textContent='⏸'; bars.classList.remove('off'); st.textContent='Now playing'; }
+  isPlaying=!isPlaying;
+});
+
+// ── Keyboard + Touch ───────────────────────────
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') { goTo(cur+1,true); resetAuto(); }
+  if(e.key==='ArrowLeft' ||e.key==='ArrowUp')   { goTo(cur-1,true); resetAuto(); }
+});
+let tx=0;
+document.getElementById('arena').addEventListener('touchstart',e=>tx=e.touches[0].clientX);
+document.getElementById('arena').addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-tx;
+  if(Math.abs(dx)>50){ goTo(dx<0?cur+1:cur-1,true); resetAuto(); }
+});
+
+// ── Render ─────────────────────────────────────
+function render({s,a}){
+  agents=a;
+  document.getElementById('tb-month').textContent=`⭐ ${s.month}`;
+  document.getElementById('tb-name').textContent=s.company||'In-Call Outsourcing';
+  document.getElementById('tb-time').textContent='Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+
+  if(s.logo&&s.logo.startsWith('http')){
+    document.getElementById('tb-logo').src=s.logo;
+  }
+  if(s.music_url&&s.music_url.startsWith('http')){
+    const aud=document.getElementById('bgaudio');
+    if(aud.src!==s.music_url) aud.src=s.music_url;
+    document.getElementById('mus-title').textContent=s.music_name;
+    document.getElementById('music').style.display='flex';
+  }
+
+  buildSlides(a);
+  setTimeout(()=>{ activateSlide(); syncDots(); },60);
+  startProg();
+  startAuto();
+}
+
+// ── Init ───────────────────────────────────────
+async function main(){
+  try {
+    const data=await loadData();
+    render(data);
+  } catch(e){
+    render({s:DEMO.s,a:DEMO.a});
+  } finally {
+    setTimeout(()=>document.getElementById('loading').classList.add('hide'),1800);
+  }
+}
+main();
+setInterval(async()=>{
+  try{
+    const d=await loadData();
+    document.getElementById('tb-time').textContent='Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    if(JSON.stringify(d.a)!==JSON.stringify(agents)) render(d);
+  }catch(e){}
+},60000);
+</script>
 </body>
 </html>
