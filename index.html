@@ -60,9 +60,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .slide.active{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
 .slide.exit{opacity:0;transform:translateY(-18px) scale(.97);}
 
-.dept-header{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.dept-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
 .dept-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);}
-.dept-chip{font-family:var(--font-display);font-size:.58rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;padding:6px 20px;border-radius:100px;background:linear-gradient(135deg,rgba(79,70,229,.18),rgba(217,119,6,.12));color:var(--indigo);border:1px solid var(--border2);box-shadow:0 2px 12px rgba(79,70,229,.1),inset 0 1px 0 rgba(255,255,255,.8);white-space:nowrap;}
+.dept-chip{font-family:var(--font-display);font-size:1.05rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:0;background:none;border:none;box-shadow:none;color:var(--indigo);white-space:nowrap;background:linear-gradient(135deg,var(--indigo),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.dept-sub-chip{font-size:.65rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-left:10px;}
 
 .layout-2{display:flex;width:100%;max-width:1040px;flex-direction:column;}
 .row-2{display:grid;grid-template-columns:1.42fr 1fr;gap:20px;align-items:start;}
@@ -181,12 +182,24 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .celeb-name{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;background:linear-gradient(135deg,var(--indigo),var(--gold2),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.05;}
 .celeb-label{font-size:.78rem;color:var(--muted);font-weight:400;margin-top:10px;letter-spacing:.05em;}
 
-#announce{position:fixed;inset:0;z-index:700;display:none;align-items:flex-end;justify-content:center;pointer-events:none;padding-bottom:52px;}
+#announce{position:fixed;inset:0;z-index:700;display:none;align-items:center;justify-content:center;pointer-events:none;}
 #announce.show{display:flex;}
-.ann-box{background:rgba(255,255,255,.96);color:var(--text);border:1.5px solid var(--border2);border-radius:16px;padding:16px 28px;font-size:.95rem;font-weight:600;box-shadow:0 0 0 4px rgba(79,70,229,.06),0 16px 48px rgba(79,70,229,.14);animation:annIn .5s cubic-bezier(.34,1.56,.64,1) both;max-width:560px;text-align:center;line-height:1.5;}
-@keyframes annIn{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
-.ann-box.out{animation:annOut .35s ease both;}
-@keyframes annOut{to{opacity:0;transform:translateY(26px)}}
+.ann-box{
+  background:rgba(255,255,255,.97);color:var(--text);
+  border:2px solid var(--indigo);border-radius:20px;
+  padding:22px 40px;font-size:1.1rem;font-weight:700;
+  box-shadow:0 0 0 8px rgba(79,70,229,.1),0 0 0 16px rgba(79,70,229,.05),0 24px 60px rgba(79,70,229,.2);
+  animation:annPop .65s cubic-bezier(.34,1.9,.64,1) both;
+  max-width:600px;text-align:center;line-height:1.5;
+}
+@keyframes annPop{
+  0%{opacity:0;transform:scale(.2) rotate(-12deg);}
+  55%{opacity:1;transform:scale(1.1) rotate(2deg);}
+  75%{transform:scale(.96) rotate(-1deg);}
+  100%{transform:scale(1) rotate(0deg);}
+}
+.ann-box.out{animation:annOut .4s ease both;}
+@keyframes annOut{to{opacity:0;transform:scale(.8) rotate(6deg);}}
 
 #music{position:fixed;bottom:52px;right:22px;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border:1.5px solid var(--border2);border-radius:14px;padding:10px 14px;display:none;align-items:center;gap:10px;box-shadow:0 4px 24px rgba(79,70,229,.1);min-width:185px;}
 .mus-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--border2);background:var(--indigo-s);color:var(--indigo);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.78rem;transition:background .2s,color .2s;flex-shrink:0;}
@@ -375,11 +388,21 @@ function compactCard(d,prefix,rank,ccCls,delay=0){
 }
 
 function deptHeader(label,month){
+  // Clean the month — strip full Date strings, keep only readable text
+  let cleanMonth = month||'This Month';
+  // If it looks like a Date string (has GMT or day-of-week), try to extract just Month Year
+  if(cleanMonth.includes('GMT') || cleanMonth.match(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/)){
+    try {
+      const d = new Date(cleanMonth);
+      if(!isNaN(d)) cleanMonth = d.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+    } catch(e) { cleanMonth = 'This Month'; }
+  }
   return`<div class="dept-header">
     <div class="dept-line"></div>
-    <div class="dept-chip">SR Top Achievers — ${month}</div>
+    <div class="dept-chip">${label}</div>
+    <div class="dept-sub-chip">${cleanMonth}</div>
     <div class="dept-line"></div>
-  </div>`.replace('SR Top Achievers',label);
+  </div>`;
 }
 
 /* ══════════════════════════════════════════
@@ -977,12 +1000,259 @@ setInterval(async()=>{
 
     drawBG();
     drawHead();
-    requestAnimationFrame(loop);
   }
 
+
+  /* ══════════════════════════════════
+     CARTOON CAT + PERSON
+  ══════════════════════════════════ */
+
+  // Cat state
+  const cat = {
+    x:0.82, y:0.74, tx:0.82, ty:0.74,
+    dir:1, step:0, timer:0, tailWag:0
+  };
+  // Person follows with delay
+  const person = { x:0.94, y:0.74, step:0 };
+
+  function drawCartoonCat(cx, cy, dir, step){
+    const S = Math.min(W,H) * 0.055;
+    ctx.save();
+    ctx.translate(cx*W, cy*H);
+    if(dir < 0) ctx.scale(-1,1);
+
+    const bob = Math.sin(step*0.22)*S*0.04;
+    const lp  = step*0.2;
+
+    // Shadow
+    ctx.save(); ctx.globalAlpha=0.12; ctx.fillStyle='#6366F1';
+    ctx.beginPath(); ctx.ellipse(0, S*.75+bob, S*.35, S*.07, 0,0,Math.PI*2); ctx.fill(); ctx.restore();
+
+    // Tail (wavy)
+    const tw = Math.sin(step*0.15)*0.55;
+    ctx.save();
+    ctx.strokeStyle='#F59E0B'; ctx.lineWidth=S*.11; ctx.lineCap='round';
+    ctx.beginPath();
+    ctx.moveTo(-S*.25, S*.44+bob);
+    ctx.bezierCurveTo(
+      -S*.7,  S*.2+bob,
+      -S*.8 + Math.cos(tw)*S*.2, -S*.05+Math.sin(tw)*S*.3,
+      -S*.55+ Math.cos(tw)*S*.3, -S*.2 +Math.sin(tw)*S*.4
+    );
+    ctx.stroke(); ctx.restore();
+
+    // Back legs
+    [[-S*.18, S*.56+bob, Math.sin(lp+Math.PI)*S*.28],
+     [ S*.02, S*.56+bob, Math.sin(lp)*S*.28]].forEach(([lx,ly,sw])=>{
+      ctx.strokeStyle='#6366F1'; ctx.lineWidth=S*.12; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(lx+sw*.45, ly+S*.3-Math.abs(sw)*.25); ctx.stroke();
+      // Paw
+      ctx.fillStyle='#818CF8';
+      ctx.beginPath(); ctx.ellipse(lx+sw*.5, ly+S*.32, S*.075,S*.045, 0.3, 0,Math.PI*2); ctx.fill();
+    });
+
+    // Body
+    const bg = ctx.createRadialGradient(0,S*.22+bob,S*.02, S*.05,S*.1+bob, S*.38);
+    bg.addColorStop(0,'#818CF8'); bg.addColorStop(1,'#4F46E5');
+    ctx.fillStyle=bg;
+    ctx.beginPath(); ctx.ellipse(0, S*.32+bob, S*.28, S*.21, -0.15, 0,Math.PI*2); ctx.fill();
+
+    // Front legs
+    [[ S*.1,  S*.5+bob, Math.sin(lp+Math.PI)*S*.18],
+     [ S*.2,  S*.5+bob, Math.sin(lp)*S*.18]].forEach(([lx,ly,sw])=>{
+      ctx.strokeStyle='#6366F1'; ctx.lineWidth=S*.12; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(lx+sw*.3, ly+S*.22); ctx.stroke();
+      ctx.fillStyle='#818CF8';
+      ctx.beginPath(); ctx.ellipse(lx+sw*.35, ly+S*.24, S*.065,S*.04, 0.3, 0,Math.PI*2); ctx.fill();
+    });
+
+    // Head
+    ctx.save(); ctx.translate(S*.14, S*.04+bob);
+    const hg = ctx.createRadialGradient(0,-S*.02,S*.03, S*.04,-S*.06,S*.2);
+    hg.addColorStop(0,'#A5B4FC'); hg.addColorStop(1,'#6366F1');
+    ctx.fillStyle=hg;
+    ctx.beginPath(); ctx.ellipse(0,-S*.02, S*.18, S*.17, 0.08, 0,Math.PI*2); ctx.fill();
+
+    // Ears — pointy cartoon style
+    [[-S*.1,-S*.14],[S*.06,-S*.17]].forEach(([ex,ey],ei)=>{
+      ctx.fillStyle='#4F46E5';
+      ctx.beginPath(); ctx.moveTo(ex,ey); ctx.lineTo(ex-S*.06,ey-S*.2); ctx.lineTo(ex+S*.08,ey-S*.04); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#FCA5A5';
+      ctx.beginPath(); ctx.moveTo(ex,ey); ctx.lineTo(ex-S*.03,ey-S*.13); ctx.lineTo(ex+S*.05,ey-S*.03); ctx.closePath(); ctx.fill();
+    });
+
+    // Big cartoon eyes
+    ctx.fillStyle='white';
+    [[-S*.07,-S*.05],[S*.05,-S*.05]].forEach(([ex,ey])=>{
+      ctx.beginPath(); ctx.ellipse(ex,ey,S*.055,S*.065,0,0,Math.PI*2); ctx.fill();
+    });
+    ctx.fillStyle='#1E1B4B';
+    [[-S*.07,-S*.05],[S*.05,-S*.05]].forEach(([ex,ey])=>{
+      ctx.beginPath(); ctx.ellipse(ex,ey,S*.03,S*.042,0,0,Math.PI*2); ctx.fill();
+    });
+    // Eye shine
+    ctx.fillStyle='rgba(255,255,255,.9)';
+    [[-S*.055,-S*.07],[S*.065,-S*.07]].forEach(([ex,ey])=>{
+      ctx.beginPath(); ctx.arc(ex,ey,S*.014,0,Math.PI*2); ctx.fill();
+    });
+
+    // Cute nose
+    ctx.fillStyle='#FCA5A5';
+    ctx.beginPath(); ctx.moveTo(S*.14,-S*.04); ctx.lineTo(S*.1,-S*.07); ctx.lineTo(S*.18,-S*.07); ctx.closePath(); ctx.fill();
+    // Mouth smile
+    ctx.strokeStyle='#6366F1'; ctx.lineWidth=S*.02; ctx.lineCap='round';
+    ctx.beginPath(); ctx.arc(S*.14,-S*.01,S*.05,0.2,Math.PI-0.2); ctx.stroke();
+
+    // Whiskers
+    ctx.strokeStyle='rgba(255,255,255,.75)'; ctx.lineWidth=S*.016; ctx.lineCap='round';
+    [[S*.18,-S*.05,S*.42,-S*.09],[S*.18,-S*.065,S*.42,S*.0]].forEach(([x1,y1,x2,y2])=>{
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    });
+    ctx.restore();
+
+    ctx.restore();
+  }
+
+  function drawCartoonPerson(px, py, step, dir){
+    const S = Math.min(W,H) * 0.065;
+    ctx.save();
+    ctx.translate(px*W, py*H);
+    if(dir < 0) ctx.scale(-1,1);
+
+    const bob = Math.sin(step*0.22)*S*0.035;
+    const lp  = step*0.2;
+    const ap  = lp + Math.PI;
+
+    // Shadow
+    ctx.save(); ctx.globalAlpha=0.1; ctx.fillStyle='#6366F1';
+    ctx.beginPath(); ctx.ellipse(0, S*.98, S*.22, S*.055, 0,0,Math.PI*2); ctx.fill(); ctx.restore();
+
+    // Legs with knees
+    [[-S*.08, Math.sin(lp)*S*.38],
+     [ S*.08, Math.sin(lp+Math.PI)*S*.38]].forEach(([lx,sw])=>{
+      const kx = lx+sw*.35, ky = S*.6+bob-Math.abs(sw)*.18;
+      // Upper
+      ctx.strokeStyle='#4F46E5'; ctx.lineWidth=S*.13; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(lx,S*.44+bob); ctx.lineTo(kx,ky); ctx.stroke();
+      // Lower
+      ctx.strokeStyle='#6366F1'; ctx.lineWidth=S*.11;
+      ctx.beginPath(); ctx.moveTo(kx,ky); ctx.lineTo(lx+sw*.5, S*.94+bob); ctx.stroke();
+      // Shoe
+      ctx.fillStyle='#1E1B4B';
+      ctx.beginPath(); ctx.ellipse(lx+sw*.55, S*.95+bob, S*.1,S*.048, 0.25, 0,Math.PI*2); ctx.fill();
+    });
+
+    // Body — rounded rectangle cartoon style
+    const bodyG = ctx.createLinearGradient(-S*.18,0,S*.18,S*.44);
+    bodyG.addColorStop(0,'#818CF8'); bodyG.addColorStop(1,'#4F46E5');
+    ctx.fillStyle=bodyG;
+    ctx.beginPath();
+    ctx.roundRect(-S*.17, S*.04+bob, S*.34, S*.42, S*.07);
+    ctx.fill();
+
+    // Arms
+    [[-S*.17, Math.sin(ap)*S*.28],
+     [ S*.17, Math.sin(ap+Math.PI)*S*.28]].forEach(([ax,sw])=>{
+      ctx.strokeStyle='#818CF8'; ctx.lineWidth=S*.12; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(ax, S*.1+bob); ctx.lineTo(ax-sw*.12, S*.38+bob+sw*.15); ctx.stroke();
+      // Hand
+      ctx.fillStyle='#FDE68A';
+      ctx.beginPath(); ctx.arc(ax-sw*.14, S*.4+bob+sw*.16, S*.055, 0,Math.PI*2); ctx.fill();
+    });
+
+    // Neck
+    ctx.fillStyle='#FDE68A';
+    ctx.beginPath(); ctx.ellipse(0, S*.02+bob, S*.075, S*.06, 0,0,Math.PI*2); ctx.fill();
+
+    // Head — big cartoon circle
+    const headG = ctx.createRadialGradient(-S*.04,-S*.2+bob,S*.02, 0,-S*.15+bob, S*.22);
+    headG.addColorStop(0,'#FEF3C7'); headG.addColorStop(1,'#FDE68A');
+    ctx.fillStyle=headG;
+    ctx.beginPath(); ctx.ellipse(0,-S*.14+bob, S*.19,S*.22, 0, 0,Math.PI*2); ctx.fill();
+
+    // Hair
+    ctx.fillStyle='#92400E';
+    ctx.beginPath(); ctx.ellipse(0,-S*.3+bob, S*.2,S*.1, 0, Math.PI,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(S*.05,-S*.4+bob, S*.08, 0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(-S*.07,-S*.38+bob, S*.07, 0,Math.PI*2); ctx.fill();
+
+    // Big eyes
+    ctx.fillStyle='white';
+    [[-S*.07,-S*.16],[S*.07,-S*.16]].forEach(([ex,ey])=>{
+      ctx.beginPath(); ctx.ellipse(ex,ey+bob,S*.055,S*.065,0,0,Math.PI*2); ctx.fill();
+    });
+    ctx.fillStyle='#1E1B4B';
+    [[-S*.07,-S*.16],[S*.07,-S*.16]].forEach(([ex,ey])=>{
+      ctx.beginPath(); ctx.ellipse(ex,ey+bob,S*.03,S*.042,0,0,Math.PI*2); ctx.fill();
+    });
+    ctx.fillStyle='rgba(255,255,255,.9)';
+    [[-S*.055,-S*.18],[S*.085,-S*.18]].forEach(([ex,ey])=>{
+      ctx.beginPath(); ctx.arc(ex,ey+bob,S*.015,0,Math.PI*2); ctx.fill();
+    });
+
+    // Smile
+    ctx.strokeStyle='#92400E'; ctx.lineWidth=S*.025; ctx.lineCap='round';
+    ctx.beginPath(); ctx.arc(0,-S*.06+bob, S*.07, 0.15, Math.PI-0.15); ctx.stroke();
+
+    ctx.restore();
+  }
+
+  // ── Cat + Person animation loop (injected into main loop) ──
+  let catStep=0, personStep=0;
+
+  function tickCatPerson(){
+    // Cat wanders in right portion of screen
+    cat.timer--;
+    if(cat.timer<=0){
+      cat.tx = 0.60 + Math.random()*0.34;
+      cat.ty = 0.68 + Math.random()*0.12;
+      cat.timer = 90 + Math.random()*150;
+    }
+    const cdx=cat.tx-cat.x, cdy=cat.ty-cat.y;
+    const cdist=Math.sqrt(cdx*cdx+cdy*cdy);
+    const catSpd=0.0028;
+    if(cdist>0.004){
+      cat.x += (cdx/cdist)*catSpd;
+      cat.y += (cdy/cdist)*0.001;
+      cat.dir = cdx>0?1:-1;
+      catStep++;
+    }
+    // Person follows cat — stays slightly behind
+    const targetX = cat.x + cat.dir*0.1; // lag behind
+    const pdx=targetX-person.x, pdy=cat.y-person.y;
+    const pdist=Math.sqrt(pdx*pdx+pdy*pdy);
+    const personSpd=0.0022;
+    if(pdist>0.04){
+      person.x += (pdx/pdist)*personSpd;
+      person.y += (pdy/pdist)*0.0008;
+      personStep++;
+    }
+    const pDir = pdx>=0?1:-1;
+
+    // Ground line
+    const groundY = cat.y*H + Math.min(W,H)*0.06;
+    ctx.save();
+    ctx.strokeStyle='rgba(99,102,241,.1)'; ctx.lineWidth=1.5;
+    ctx.setLineDash([6,14]);
+    ctx.beginPath(); ctx.moveTo(W*0.56,groundY); ctx.lineTo(W,groundY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    drawCartoonCat(cat.x, cat.y, cat.dir, catStep);
+    drawCartoonPerson(person.x, person.y, personStep, pDir);
+  }
+
+  // Patch the loop to call tickCatPerson
   resize();
   buildNodes();
-  loop();
+
+  // Override loop to include cat/person
+  function loopWithScene(){
+    _drawLoop();
+    tickCatPerson();
+    requestAnimationFrame(loopWithScene);
+  }
+  loopWithScene();
   window.addEventListener('resize',()=>{resize();buildNodes();});
 })();
 </script>
