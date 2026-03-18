@@ -4,21 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   <title>Honor Board · Top Achievers</title>
-  <!-- Google Fonts: clean modern sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-  <!-- canvas-confetti for celebration effects -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
   <style>
-    /* same styles as before */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-family: 'Inter', sans-serif;
       background: #f5f7fb;
       height: 100vh;
       width: 100vw;
@@ -31,11 +24,7 @@
       height: 100%;
       background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
     }
-    .slides-container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-    }
+    .slides-container { position: relative; width: 100%; height: 100%; }
     .slide {
       position: absolute;
       top: 0;
@@ -74,11 +63,7 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.02);
       border: 1px solid rgba(255,255,255,0.7);
     }
-    .logo-area {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
+    .logo-area { display: flex; align-items: center; gap: 0.75rem; }
     .company-logo { max-height: 44px; width: auto; border-radius: 12px; }
     .company-logo-placeholder {
       font-weight: 600; font-size: 1.25rem; background: #eef2ff;
@@ -182,9 +167,7 @@
     <div id="loadingOverlay" class="loading-overlay">
       <div class="loading-spinner"></div>
     </div>
-
     <div id="slidesContainer" class="slides-container"></div>
-
     <div id="musicControl" class="music-control" style="display: none;">
       <button id="musicPlayPauseBtn">▶️</button>
       <span id="musicTitle">background music</span>
@@ -195,14 +178,19 @@
   <script>
     (function() {
       // --------------------------------------------------------------
-      // YOUR GOOGLE APPS SCRIPT URL
+      // YOUR GOOGLE APPS SCRIPT URL (EXEC)
       // --------------------------------------------------------------
       const API_URL = 'https://script.google.com/macros/s/AKfycbzn5XQeJGT0_JkfClZA3eFpFsDqtUEYpe16Iut7nxOp94Fm8e8eVPQZXAKl3e3YOrrDfA/exec';
 
-      // Use a CORS proxy to bypass the missing CORS header
-      // Note: This is a temporary solution. For production, modify your Apps Script to include:
-      // .setHeader('Access-Control-Allow-Origin', '*')
-      const PROXY_URL = 'https://api.allorigins.win/raw?url=';
+      // PROXY SETTINGS - اختر واحداً يعمل
+      const PROXY_OPTIONS = [
+        'https://api.allorigins.win/raw?url=',
+        'https://cors-anywhere.herokuapp.com/',
+        'https://corsproxy.io/?'
+      ];
+      
+      // سنحاول استخدام أول proxy، وإذا فشل ننتقل للثاني
+      let currentProxyIndex = 0;
 
       // Global state
       let slidesData = [];
@@ -222,37 +210,33 @@
       const musicVolumeInput = document.getElementById('musicVolume');
 
       // --------------------------------------------------------------
-      // Fetch data via CORS proxy
+      // Fetch data with fallback proxies
       // --------------------------------------------------------------
+      async function fetchDataWithProxy(proxyUrl) {
+        const fullUrl = proxyUrl + encodeURIComponent(API_URL);
+        console.log('Trying proxy:', fullUrl);
+        const response = await fetch(fullUrl, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const text = await response.text();
+        return JSON.parse(text);
+      }
+
       async function fetchData() {
-        try {
-          // Use proxy to avoid CORS error
-          const proxyUrl = PROXY_URL + encodeURIComponent(API_URL);
-          const response = await fetch(proxyUrl, {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json'
-            }
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          const text = await response.text();
-          console.log('Raw response (via proxy):', text.substring(0, 200));
-
-          // Try to parse JSON
+        // Try each proxy in order
+        for (let i = currentProxyIndex; i < PROXY_OPTIONS.length; i++) {
           try {
-            const data = JSON.parse(text);
+            const data = await fetchDataWithProxy(PROXY_OPTIONS[i]);
+            currentProxyIndex = i; // remember working proxy
             return data;
-          } catch (e) {
-            throw new Error('Response is not valid JSON: ' + text.substring(0, 100));
+          } catch (err) {
+            console.warn(`Proxy ${PROXY_OPTIONS[i]} failed:`, err);
+            // Continue to next
           }
-        } catch (error) {
-          console.error('Fetch error (with proxy):', error);
-          throw error;
         }
+        throw new Error('All proxies failed');
       }
 
       // --------------------------------------------------------------
@@ -265,7 +249,6 @@
           const settingsRows = result.settings || [];
           const agentsRows = result.agents || [];
 
-          // Build settings map
           const settings = {};
           settingsRows.forEach(row => {
             if (row.key && row.value !== undefined) {
@@ -273,10 +256,8 @@
             }
           });
 
-          // Setup music
           setupMusic(settings);
 
-          // Process agents
           const agents = agentsRows.map(row => ({
             rank: String(row.rank || '').trim(),
             name: row.name || '',
@@ -288,7 +269,6 @@
             tasks: row.tasks || ''
           })).filter(a => a.rank && a.name);
 
-          // Find rank 1, 2, 3
           const rank1Agents = agents.filter(a => a.rank === '1');
           const rank2 = agents.find(a => a.rank === '2');
           const rank3 = agents.find(a => a.rank === '3');
@@ -314,8 +294,22 @@
           }, 500);
 
         } catch (error) {
-          console.error('Failed to load data:', error);
-          slidesContainer.innerHTML = `<div class="no-data-message">⚠️ Failed to load data. Check console for details.<br>URL: ${API_URL}</div>`;
+          console.error('All proxies failed:', error);
+          slidesContainer.innerHTML = `
+            <div class="no-data-message" style="flex-direction: column; gap: 20px; padding: 20px;">
+              ⚠️ Failed to load data. All CORS proxies failed.<br><br>
+              <strong>Permanent solution:</strong> Add CORS header to your Apps Script.
+              <div style="font-size: 1rem; max-width: 600px; background: #f1f5f9; padding: 20px; border-radius: 20px; text-align: left;">
+                <p>In your Google Apps Script code, add:</p>
+                <pre style="background: #e2e8f0; padding: 10px; border-radius: 8px;">
+return ContentService
+  .createTextOutput(JSON.stringify(data))
+  .setMimeType(ContentService.MimeType.JSON)
+  .setHeader('Access-Control-Allow-Origin', '*');</pre>
+                <p>Then redeploy as a web app with access set to "Anyone".</p>
+              </div>
+            </div>
+          `;
           loadingOverlay.style.opacity = '0';
           setTimeout(() => {
             loadingOverlay.style.display = 'none';
@@ -329,21 +323,17 @@
       function setupMusic(settings) {
         const musicUrl = settings.music_url;
         const musicTitle = settings.music_title || 'background track';
-
         if (!musicUrl) {
           musicControlDiv.style.display = 'none';
           return;
         }
-
         if (audioElement) audioElement.pause();
         audioElement = new Audio(musicUrl);
         audioElement.loop = true;
         audioElement.volume = 0.2;
         audioElement.load();
-
         musicTitleSpan.textContent = musicTitle;
         musicControlDiv.style.display = 'flex';
-
         audioElement.play().then(() => {
           isPlaying = true;
           musicPlayBtn.textContent = '⏸️';
@@ -351,7 +341,6 @@
           isPlaying = false;
           musicPlayBtn.textContent = '▶️';
         });
-
         musicPlayBtn.onclick = () => {
           if (!audioElement) return;
           if (isPlaying) {
@@ -363,7 +352,6 @@
           }
           isPlaying = !isPlaying;
         };
-
         musicVolumeInput.addEventListener('input', (e) => {
           if (audioElement) {
             audioElement.volume = parseFloat(e.target.value);
@@ -376,17 +364,13 @@
       // --------------------------------------------------------------
       function renderSlides() {
         if (!slidesData.length) return;
-
         let slidesHTML = '';
         slidesData.forEach((slide, idx) => {
           slidesHTML += buildSlideHTML(slide, idx);
         });
-
         slidesContainer.innerHTML = slidesHTML;
-
         const firstSlide = document.querySelector('.slide');
         if (firstSlide) firstSlide.classList.add('active');
-
         triggerConfettiForCurrent();
       }
 
@@ -411,37 +395,19 @@
                 <span class="department">${escapeHTML(department)}</span>
               </div>
             </div>
-
             <div class="hero-section">
-              ${heroImage ? 
-                `<img class="hero-avatar" src="${heroImage}" alt="${hero.name}" loading="lazy">` : 
-                `<div class="hero-avatar initials-avatar">${heroInitials}</div>`
-              }
+              ${heroImage ? `<img class="hero-avatar" src="${heroImage}" alt="${hero.name}" loading="lazy">` : `<div class="hero-avatar initials-avatar">${heroInitials}</div>`}
               <div class="hero-name">${escapeHTML(hero.name)}</div>
               <div class="hero-title">${escapeHTML(hero.title || 'Top Achiever')}</div>
               ${hero.comment ? `<div class="hero-comment">“${escapeHTML(hero.comment)}”</div>` : ''}
-
               ${metricsExist ? `<div class="metrics">
                 ${hero.sales ? `<div class="metric-item"><div class="metric-label">Sales</div><div class="metric-value" data-count="${hero.sales}">0</div></div>` : ''}
                 ${hero.dos ? `<div class="metric-item"><div class="metric-label">DOS</div><div class="metric-value" data-count="${hero.dos}">0</div></div>` : ''}
                 ${hero.tasks ? `<div class="metric-item"><div class="metric-label">Tasks</div><div class="metric-value" data-count="${hero.tasks}">0</div></div>` : ''}
               </div>` : ''}
-
               <div class="podium">
-                ${rank2 ? `
-                  <div class="podium-card">
-                    <div class="podium-rank">Rank 2</div>
-                    <div class="podium-name">${escapeHTML(rank2.name)}</div>
-                    <div class="podium-title">${escapeHTML(rank2.title || '')}</div>
-                  </div>
-                ` : ''}
-                ${rank3 ? `
-                  <div class="podium-card">
-                    <div class="podium-rank">Rank 3</div>
-                    <div class="podium-name">${escapeHTML(rank3.name)}</div>
-                    <div class="podium-title">${escapeHTML(rank3.title || '')}</div>
-                  </div>
-                ` : ''}
+                ${rank2 ? `<div class="podium-card"><div class="podium-rank">Rank 2</div><div class="podium-name">${escapeHTML(rank2.name)}</div><div class="podium-title">${escapeHTML(rank2.title || '')}</div></div>` : ''}
+                ${rank3 ? `<div class="podium-card"><div class="podium-rank">Rank 3</div><div class="podium-name">${escapeHTML(rank3.name)}</div><div class="podium-title">${escapeHTML(rank3.title || '')}</div></div>` : ''}
               </div>
             </div>
           </div>
@@ -466,9 +432,6 @@
         return (parts[0].charAt(0) + parts[parts.length-1].charAt(0)).toUpperCase();
       }
 
-      // --------------------------------------------------------------
-      // Slideshow controls (unchanged)
-      // --------------------------------------------------------------
       function startSlideShow() {
         if (slideInterval) clearInterval(slideInterval);
         slideInterval = setInterval(nextSlide, 30000);
@@ -478,11 +441,9 @@
         if (!slidesData.length) return;
         const slides = document.querySelectorAll('.slide');
         if (slides.length === 0) return;
-
         slides[currentSlideIndex].classList.remove('active');
         currentSlideIndex = (currentSlideIndex + 1) % slides.length;
         slides[currentSlideIndex].classList.add('active');
-
         animateCounters(currentSlideIndex);
         triggerConfettiForCurrent();
       }
@@ -521,9 +482,6 @@
         });
       }
 
-      // --------------------------------------------------------------
-      // Auto-refresh every 60 seconds
-      // --------------------------------------------------------------
       function startAutoRefresh() {
         if (refreshInterval) clearInterval(refreshInterval);
         refreshInterval = setInterval(async () => {
@@ -553,27 +511,5 @@
 
     })();
   </script>
-  <!-- 
-    =========================================================================
-    IMPORTANT: CORS ERROR FIX
-    =========================================================================
-    The error "No 'Access-Control-Allow-Origin' header" occurs because your 
-    Google Apps Script does not include the required CORS header.
-
-    PERMANENT SOLUTION:
-    In your Apps Script code, when you return the data, add:
-    
-      return ContentService
-        .createTextOutput(JSON.stringify(data))
-        .setMimeType(ContentService.MimeType.JSON)
-        .setHeader('Access-Control-Allow-Origin', '*');
-
-    Then redeploy the script as a web app (with access set to "Anyone").
-    After that, you can remove the proxy (PROXY_URL) and use direct fetch.
-
-    The current code uses a free public proxy (allorigins.win) as a temporary 
-    workaround. It may have rate limits; for production, fix the Apps Script.
-    =========================================================================
-  -->
 </body>
 </html>
