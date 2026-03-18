@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>لوحة الشرف · أفضل المنجزين</title>
-  <!-- Google Fonts: خط عصري نظيف -->
+  <title>Honor Board · Top Achievers</title>
+  <!-- Google Fonts: clean modern sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-  <!-- canvas-confetti للتأثيرات الاحتفالية -->
+  <!-- canvas-confetti for celebration effects -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
   <style>
+    /* same styles as before, no RTL changes */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background: #f5f7fb;
@@ -25,20 +25,17 @@
       overflow: hidden;
       color: #1e293b;
     }
-
     .honor-board {
       position: relative;
       width: 100%;
       height: 100%;
       background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
     }
-
     .slides-container {
       position: relative;
       width: 100%;
       height: 100%;
     }
-
     .slide {
       position: absolute;
       top: 0;
@@ -54,25 +51,15 @@
       display: flex;
       flex-direction: column;
     }
-
     .slide.active {
       opacity: 1;
       visibility: visible;
       transform: scale(1);
       z-index: 10;
     }
-
-    .slide::-webkit-scrollbar {
-      width: 6px;
-    }
-    .slide::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    .slide::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 20px;
-    }
-
+    .slide::-webkit-scrollbar { width: 6px; }
+    .slide::-webkit-scrollbar-track { background: transparent; }
+    .slide::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 20px; }
     .board-header {
       display: flex;
       justify-content: space-between;
@@ -87,267 +74,100 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.02);
       border: 1px solid rgba(255,255,255,0.7);
     }
-
     .logo-area {
       display: flex;
       align-items: center;
       gap: 0.75rem;
     }
-
-    .company-logo {
-      max-height: 44px;
-      width: auto;
-      display: block;
-      border-radius: 12px;
-    }
-
+    .company-logo { max-height: 44px; width: auto; border-radius: 12px; }
     .company-logo-placeholder {
-      font-weight: 600;
-      font-size: 1.25rem;
-      background: #eef2ff;
-      padding: 0.4rem 1rem;
-      border-radius: 40px;
-      color: #1e3a8a;
+      font-weight: 600; font-size: 1.25rem; background: #eef2ff;
+      padding: 0.4rem 1rem; border-radius: 40px; color: #1e3a8a;
     }
-
-    .month-dept {
-      display: flex;
-      gap: 1rem;
-      align-items: baseline;
-      flex-wrap: wrap;
-    }
-
+    .month-dept { display: flex; gap: 1rem; align-items: baseline; flex-wrap: wrap; }
     .month-title {
-      font-weight: 600;
-      font-size: 1.25rem;
-      background: #1e293b;
-      color: white;
-      padding: 0.3rem 1.2rem;
-      border-radius: 40px;
-      letter-spacing: 0.3px;
+      font-weight: 600; font-size: 1.25rem; background: #1e293b;
+      color: white; padding: 0.3rem 1.2rem; border-radius: 40px;
     }
-
     .department {
-      font-weight: 500;
-      color: #475569;
-      background: #f1f5f9;
-      padding: 0.3rem 1.2rem;
-      border-radius: 40px;
-      font-size: 1rem;
+      font-weight: 500; color: #475569; background: #f1f5f9;
+      padding: 0.3rem 1.2rem; border-radius: 40px; font-size: 1rem;
     }
-
     .hero-section {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      max-width: 900px;
-      margin: 0 auto;
-      width: 100%;
+      flex: 1; display: flex; flex-direction: column; justify-content: center;
+      align-items: center; max-width: 900px; margin: 0 auto; width: 100%;
     }
-
     .hero-avatar {
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
-      object-fit: cover;
-      box-shadow: 0 30px 40px -20px rgba(0,20,40,0.25),
-                  0 0 0 4px rgba(255,255,255,0.8);
-      margin-bottom: 1.5rem;
-      background: #e2e8f0;
-      transition: transform 0.3s ease;
+      width: 220px; height: 220px; border-radius: 50%; object-fit: cover;
+      box-shadow: 0 30px 40px -20px rgba(0,20,40,0.25), 0 0 0 4px rgba(255,255,255,0.8);
+      margin-bottom: 1.5rem; background: #e2e8f0; transition: transform 0.3s ease;
     }
-
     .hero-avatar.initials-avatar {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 5rem;
-      font-weight: 500;
-      color: #1e293b;
-      background: linear-gradient(135deg, #d9e2ef, #bdd3eb);
-      text-transform: uppercase;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 5rem; font-weight: 500; color: #1e293b;
+      background: linear-gradient(135deg, #d9e2ef, #bdd3eb); text-transform: uppercase;
     }
-
     .hero-name {
-      font-size: 3rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
+      font-size: 3rem; font-weight: 700; letter-spacing: -0.02em;
       background: linear-gradient(to right, #1e293b, #2d3c53);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-align: center;
-      line-height: 1.2;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-align: center; line-height: 1.2;
     }
-
-    .hero-title {
-      font-size: 1.3rem;
-      font-weight: 400;
-      color: #4b5565;
-      margin-top: 0.25rem;
-      margin-bottom: 0.75rem;
-    }
-
+    .hero-title { font-size: 1.3rem; font-weight: 400; color: #4b5565; margin: 0.25rem 0 0.75rem; }
     .hero-comment {
-      font-size: 1.2rem;
-      font-style: italic;
-      color: #2c3e50;
-      background: #ecfdf5;
-      padding: 0.6rem 1.8rem;
-      border-radius: 60px;
-      margin: 1rem 0 1.2rem;
-      box-shadow: 0 2px 8px rgba(0,80,50,0.05);
-      max-width: 80%;
+      font-size: 1.2rem; font-style: italic; color: #2c3e50; background: #ecfdf5;
+      padding: 0.6rem 1.8rem; border-radius: 60px; margin: 1rem 0 1.2rem;
+      box-shadow: 0 2px 8px rgba(0,80,50,0.05); max-width: 80%;
     }
-
     .metrics {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1.8rem;
-      margin: 1.5rem 0;
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 1.8rem; margin: 1.5rem 0;
     }
-
     .metric-item {
-      background: white;
-      border-radius: 40px;
-      padding: 0.5rem 1.8rem;
-      box-shadow: 0 8px 18px -8px rgba(0,34,64,0.08);
-      border: 1px solid rgba(203, 213, 225, 0.4);
-      font-weight: 500;
-      backdrop-filter: blur(4px);
+      background: white; border-radius: 40px; padding: 0.5rem 1.8rem;
+      box-shadow: 0 8px 18px -8px rgba(0,34,64,0.08); border: 1px solid rgba(203,213,225,0.4);
+      font-weight: 500; backdrop-filter: blur(4px);
     }
-
-    .metric-label {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #64748b;
-    }
-
-    .metric-value {
-      font-size: 2rem;
-      font-weight: 700;
-      line-height: 1.2;
-      color: #0f172a;
-    }
-
+    .metric-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; }
+    .metric-value { font-size: 2rem; font-weight: 700; line-height: 1.2; color: #0f172a; }
     .podium {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      margin-top: 2rem;
-      margin-bottom: 0.5rem;
-      flex-wrap: wrap;
+      display: flex; justify-content: center; gap: 2rem; margin-top: 2rem; margin-bottom: 0.5rem; flex-wrap: wrap;
     }
-
     .podium-card {
-      background: white;
-      border-radius: 40px;
-      padding: 1rem 2rem;
-      min-width: 200px;
-      text-align: center;
-      box-shadow: 0 10px 20px -10px rgba(0,0,0,0.08);
-      border: 1px solid #e9eef3;
-      transition: all 0.2s;
+      background: white; border-radius: 40px; padding: 1rem 2rem; min-width: 200px;
+      text-align: center; box-shadow: 0 10px 20px -10px rgba(0,0,0,0.08);
+      border: 1px solid #e9eef3; transition: all 0.2s;
     }
-
-    .podium-card:hover {
-      transform: translateY(-4px);
-      border-color: #b9d0f0;
-    }
-
-    .podium-rank {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #64748b;
-      text-transform: uppercase;
-    }
-
-    .podium-name {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin: 0.2rem 0;
-    }
-
-    .podium-title {
-      color: #475569;
-    }
-
+    .podium-card:hover { transform: translateY(-4px); border-color: #b9d0f0; }
+    .podium-rank { font-size: 0.9rem; font-weight: 600; color: #64748b; text-transform: uppercase; }
+    .podium-name { font-size: 1.5rem; font-weight: 600; margin: 0.2rem 0; }
+    .podium-title { color: #475569; }
     .music-control {
-      position: fixed;
-      bottom: 20px;
-      left: 20px; /* تعديل للعربية */
-      background: rgba(255,255,255,0.75);
-      backdrop-filter: blur(12px);
-      border-radius: 60px;
-      padding: 0.45rem 1.2rem 0.45rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      box-shadow: 0 10px 26px rgba(0,0,0,0.1);
-      border: 1px solid rgba(255,255,255,0.7);
-      z-index: 99;
-      font-size: 0.9rem;
+      position: fixed; bottom: 20px; right: 20px; background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(12px); border-radius: 60px; padding: 0.45rem 1.2rem 0.45rem 1rem;
+      display: flex; align-items: center; gap: 0.8rem; box-shadow: 0 10px 26px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255,255,255,0.7); z-index: 99; font-size: 0.9rem;
     }
-
     .music-control button {
-      background: #1e293b;
-      border: none;
-      color: white;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: 0.2s;
-      font-size: 1.1rem;
+      background: #1e293b; border: none; color: white; width: 32px; height: 32px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: 0.2s; font-size: 1.1rem;
     }
-
-    .music-control button:hover {
-      background: #0f172a;
-      transform: scale(1.05);
-    }
-
-    .music-control span {
-      max-width: 140px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
+    .music-control button:hover { background: #0f172a; transform: scale(1.05); }
+    .music-control span { max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .loading-overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 200;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white;
+      display: flex; align-items: center; justify-content: center; z-index: 200;
       transition: opacity 0.5s;
     }
     .loading-spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #2563eb;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
+      border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%;
+      width: 50px; height: 50px; animation: spin 1s linear infinite;
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
     .no-data-message {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      font-size: 1.8rem;
-      color: #94a3b8;
+      display: flex; align-items: center; justify-content: center; height: 100%;
+      font-size: 1.8rem; color: #94a3b8;
     }
-
     @media (max-width: 700px) {
       .hero-name { font-size: 2.2rem; }
       .hero-avatar { width: 160px; height: 160px; font-size: 3.5rem; }
@@ -367,7 +187,7 @@
 
     <div id="musicControl" class="music-control" style="display: none;">
       <button id="musicPlayPauseBtn">▶️</button>
-      <span id="musicTitle">موسيقى الخلفية</span>
+      <span id="musicTitle">background music</span>
       <input type="range" id="musicVolume" min="0" max="1" step="0.05" value="0.2" style="width: 60px;">
     </div>
   </div>
@@ -375,12 +195,12 @@
   <script>
     (function() {
       // --------------------------------------------------------------
-      // الرابط الخاص بـ Google Apps Script (API)
+      // YOUR GOOGLE APPS SCRIPT URL
       // --------------------------------------------------------------
       const API_URL = 'https://script.google.com/macros/s/AKfycbxwYveoYWL3dBaWlfoVK3VnIMfc2xHSaGODJYD6VQz4ikYdNOAzx8A_Gu8OpgxA6bNGkw/exec';
 
-      // الحالة العامة
-      let slidesData = [];                // مصفوفة الشرائح (كل شريحة تقابل الرقم 1)
+      // Global state
+      let slidesData = [];
       let currentSlideIndex = 0;
       let slideInterval = null;
       let confettiInterval = null;
@@ -388,7 +208,7 @@
       let audioElement = null;
       let isPlaying = false;
 
-      // عناصر DOM
+      // DOM elements
       const slidesContainer = document.getElementById('slidesContainer');
       const loadingOverlay = document.getElementById('loadingOverlay');
       const musicControlDiv = document.getElementById('musicControl');
@@ -397,28 +217,51 @@
       const musicVolumeInput = document.getElementById('musicVolume');
 
       // --------------------------------------------------------------
-      // جلب البيانات من الـ API
+      // Fetch data from the Apps Script API
       // --------------------------------------------------------------
       async function fetchData() {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('فشل الاتصال بالخادم');
-        const data = await response.json(); // نتوقع JSON
-        return data; // يجب أن يكون كائن يحوي `settings` و `agents`
+        try {
+          const response = await fetch(API_URL, {
+            method: 'GET',
+            mode: 'cors', // important: some APIs need no-cors, but then you can't read JSON
+            headers: {
+              'Accept': 'application/json'
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          // The response might be JSON or maybe JSONP. We assume JSON.
+          const text = await response.text(); // first get as text to debug
+          console.log('Raw response:', text.substring(0, 200)); // log first 200 chars
+
+          // Try to parse JSON
+          try {
+            const data = JSON.parse(text);
+            return data;
+          } catch (e) {
+            throw new Error('Response is not valid JSON: ' + text.substring(0, 100));
+          }
+        } catch (error) {
+          console.error('Fetch error:', error);
+          throw error;
+        }
       }
 
       // --------------------------------------------------------------
-      // جلب البيانات وبناء الشرائح
+      // Build slides from fetched data
       // --------------------------------------------------------------
       async function fetchAllAndRender() {
         try {
           const result = await fetchData();
 
-          // استخراج الإعدادات والوكلاء من الـ JSON
-          // نفترض أن الناتج يحوي خاصيتين: settings (مصفوفة) و agents (مصفوفة)
+          // Expect result to have properties: settings and agents (arrays)
           const settingsRows = result.settings || [];
           const agentsRows = result.agents || [];
 
-          // بناء كائن الإعدادات (key -> value)
+          // Build settings map
           const settings = {};
           settingsRows.forEach(row => {
             if (row.key && row.value !== undefined) {
@@ -426,10 +269,10 @@
             }
           });
 
-          // إعداد الموسيقى
+          // Setup music
           setupMusic(settings);
 
-          // معالجة الوكلاء
+          // Process agents
           const agents = agentsRows.map(row => ({
             rank: String(row.rank || '').trim(),
             name: row.name || '',
@@ -441,17 +284,16 @@
             tasks: row.tasks || ''
           })).filter(a => a.rank && a.name);
 
-          // البحث عن الرتب
+          // Find rank 1, 2, 3
           const rank1Agents = agents.filter(a => a.rank === '1');
           const rank2 = agents.find(a => a.rank === '2');
           const rank3 = agents.find(a => a.rank === '3');
 
           if (rank1Agents.length === 0) {
-            slidesContainer.innerHTML = `<div class="no-data-message">✨ لا يوجد منجزون بعد ✨</div>`;
+            slidesContainer.innerHTML = `<div class="no-data-message">✨ No top achievers yet ✨</div>`;
             return;
           }
 
-          // تجهيز مصفوفة الشرائح
           slidesData = rank1Agents.map(hero => ({
             hero,
             rank2,
@@ -459,19 +301,18 @@
             settings
           }));
 
-          // عرض الشرائح
           renderSlides();
           startSlideShow();
 
-          // إخفاء شاشة التحميل
+          // Hide loading overlay
           loadingOverlay.style.opacity = '0';
           setTimeout(() => {
             loadingOverlay.style.display = 'none';
           }, 500);
 
         } catch (error) {
-          console.error('خطأ في جلب البيانات:', error);
-          slidesContainer.innerHTML = `<div class="no-data-message">⚠️ تعذر تحميل البيانات. تحقق من اتصالك أو الرابط.</div>`;
+          console.error('Failed to load data:', error);
+          slidesContainer.innerHTML = `<div class="no-data-message">⚠️ Failed to load data. Check console for details. URL: ${API_URL}</div>`;
           loadingOverlay.style.opacity = '0';
           setTimeout(() => {
             loadingOverlay.style.display = 'none';
@@ -480,11 +321,11 @@
       }
 
       // --------------------------------------------------------------
-      // إعداد الموسيقى
+      // Music setup
       // --------------------------------------------------------------
       function setupMusic(settings) {
         const musicUrl = settings.music_url;
-        const musicTitle = settings.music_title || 'مقطوعة خلفية';
+        const musicTitle = settings.music_title || 'background track';
 
         if (!musicUrl) {
           musicControlDiv.style.display = 'none';
@@ -500,7 +341,6 @@
         musicTitleSpan.textContent = musicTitle;
         musicControlDiv.style.display = 'flex';
 
-        // محاولة التشغيل التلقائي
         audioElement.play().then(() => {
           isPlaying = true;
           musicPlayBtn.textContent = '⏸️';
@@ -529,7 +369,7 @@
       }
 
       // --------------------------------------------------------------
-      // عرض جميع الشرائح
+      // Render slides
       // --------------------------------------------------------------
       function renderSlides() {
         if (!slidesData.length) return;
@@ -548,13 +388,13 @@
       }
 
       // --------------------------------------------------------------
-      // بناء HTML لشريحة واحدة
+      // Build HTML for a slide
       // --------------------------------------------------------------
       function buildSlideHTML(slide, index) {
         const { hero, rank2, rank3, settings } = slide;
-        const monthTitle = settings.month_title || 'مارس 2025';
-        const department = settings.department || 'المبيعات';
-        const companyName = settings.company_name || 'الشركة';
+        const monthTitle = settings.month_title || 'Current Month';
+        const department = settings.department || 'Department';
+        const companyName = settings.company_name || 'Company';
         const companyLogo = settings.company_logo || '';
         const heroImage = hero.image_url || '';
         const heroInitials = getInitials(hero.name);
@@ -578,26 +418,26 @@
                 `<div class="hero-avatar initials-avatar">${heroInitials}</div>`
               }
               <div class="hero-name">${escapeHTML(hero.name)}</div>
-              <div class="hero-title">${escapeHTML(hero.title || 'أفضل منجز')}</div>
+              <div class="hero-title">${escapeHTML(hero.title || 'Top Achiever')}</div>
               ${hero.comment ? `<div class="hero-comment">“${escapeHTML(hero.comment)}”</div>` : ''}
 
               ${metricsExist ? `<div class="metrics">
-                ${hero.sales ? `<div class="metric-item"><div class="metric-label">المبيعات</div><div class="metric-value" data-count="${hero.sales}">0</div></div>` : ''}
+                ${hero.sales ? `<div class="metric-item"><div class="metric-label">Sales</div><div class="metric-value" data-count="${hero.sales}">0</div></div>` : ''}
                 ${hero.dos ? `<div class="metric-item"><div class="metric-label">DOS</div><div class="metric-value" data-count="${hero.dos}">0</div></div>` : ''}
-                ${hero.tasks ? `<div class="metric-item"><div class="metric-label">المهام</div><div class="metric-value" data-count="${hero.tasks}">0</div></div>` : ''}
+                ${hero.tasks ? `<div class="metric-item"><div class="metric-label">Tasks</div><div class="metric-value" data-count="${hero.tasks}">0</div></div>` : ''}
               </div>` : ''}
 
               <div class="podium">
                 ${rank2 ? `
                   <div class="podium-card">
-                    <div class="podium-rank">المركز الثاني</div>
+                    <div class="podium-rank">Rank 2</div>
                     <div class="podium-name">${escapeHTML(rank2.name)}</div>
                     <div class="podium-title">${escapeHTML(rank2.title || '')}</div>
                   </div>
                 ` : ''}
                 ${rank3 ? `
                   <div class="podium-card">
-                    <div class="podium-rank">المركز الثالث</div>
+                    <div class="podium-rank">Rank 3</div>
                     <div class="podium-name">${escapeHTML(rank3.name)}</div>
                     <div class="podium-title">${escapeHTML(rank3.title || '')}</div>
                   </div>
@@ -627,7 +467,7 @@
       }
 
       // --------------------------------------------------------------
-      // التحكم بالعرض التلقائي
+      // Slideshow controls
       // --------------------------------------------------------------
       function startSlideShow() {
         if (slideInterval) clearInterval(slideInterval);
@@ -682,7 +522,7 @@
       }
 
       // --------------------------------------------------------------
-      // التحديث التلقائي كل 60 ثانية
+      // Auto-refresh every 60 seconds
       // --------------------------------------------------------------
       function startAutoRefresh() {
         if (refreshInterval) clearInterval(refreshInterval);
@@ -704,7 +544,7 @@
       }
 
       // --------------------------------------------------------------
-      // بدء التطبيق
+      // Initialization
       // --------------------------------------------------------------
       (async function init() {
         await fetchAllAndRender();
