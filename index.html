@@ -164,9 +164,7 @@
 </head>
 <body>
   <div class="honor-board">
-    <div id="loadingOverlay" class="loading-overlay">
-      <div class="loading-spinner"></div>
-    </div>
+    <div id="loadingOverlay" class="loading-overlay"><div class="loading-spinner"></div></div>
     <div id="slidesContainer" class="slides-container"></div>
     <div id="musicControl" class="music-control" style="display: none;">
       <button id="musicPlayPauseBtn">▶️</button>
@@ -178,21 +176,11 @@
   <script>
     (function() {
       // --------------------------------------------------------------
-      // YOUR GOOGLE APPS SCRIPT URL (EXEC)
+      // ضع هنا رابط الـ Web app الذي حصلت عليه من Apps Script
       // --------------------------------------------------------------
-      const API_URL = 'https://script.google.com/macros/s/AKfycbxsemy4uLOUi83jPd62vqWtt2DeuJEcbFAlfLpRcECNhSa_NK87dfBQIJP2tnX05Cexfw/exec';
+      const API_URL = 'https://script.google.com/macros/s/AKfycbzn5XQeJGT0_JkfClZA3eFpFsDqtUEYpe16Iut7nxOp94Fm8e8eVPQZXAKl3e3YOrrDfA/exec';
 
-      // PROXY SETTINGS - اختر واحداً يعمل
-      const PROXY_OPTIONS = [
-        'https://api.allorigins.win/raw?url=',
-        'https://cors-anywhere.herokuapp.com/',
-        'https://corsproxy.io/?'
-      ];
-      
-      // سنحاول استخدام أول proxy، وإذا فشل ننتقل للثاني
-      let currentProxyIndex = 0;
-
-      // Global state
+      // الحالة العامة
       let slidesData = [];
       let currentSlideIndex = 0;
       let slideInterval = null;
@@ -201,7 +189,6 @@
       let audioElement = null;
       let isPlaying = false;
 
-      // DOM elements
       const slidesContainer = document.getElementById('slidesContainer');
       const loadingOverlay = document.getElementById('loadingOverlay');
       const musicControlDiv = document.getElementById('musicControl');
@@ -210,38 +197,14 @@
       const musicVolumeInput = document.getElementById('musicVolume');
 
       // --------------------------------------------------------------
-      // Fetch data with fallback proxies
+      // جلب البيانات مباشرة (بدون proxy)
       // --------------------------------------------------------------
-      async function fetchDataWithProxy(proxyUrl) {
-        const fullUrl = proxyUrl + encodeURIComponent(API_URL);
-        console.log('Trying proxy:', fullUrl);
-        const response = await fetch(fullUrl, {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' }
-        });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const text = await response.text();
-        return JSON.parse(text);
-      }
-
       async function fetchData() {
-        // Try each proxy in order
-        for (let i = currentProxyIndex; i < PROXY_OPTIONS.length; i++) {
-          try {
-            const data = await fetchDataWithProxy(PROXY_OPTIONS[i]);
-            currentProxyIndex = i; // remember working proxy
-            return data;
-          } catch (err) {
-            console.warn(`Proxy ${PROXY_OPTIONS[i]} failed:`, err);
-            // Continue to next
-          }
-        }
-        throw new Error('All proxies failed');
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.json();
       }
 
-      // --------------------------------------------------------------
-      // Build slides from fetched data
-      // --------------------------------------------------------------
       async function fetchAllAndRender() {
         try {
           const result = await fetchData();
@@ -294,22 +257,8 @@
           }, 500);
 
         } catch (error) {
-          console.error('All proxies failed:', error);
-          slidesContainer.innerHTML = `
-            <div class="no-data-message" style="flex-direction: column; gap: 20px; padding: 20px;">
-              ⚠️ Failed to load data. All CORS proxies failed.<br><br>
-              <strong>Permanent solution:</strong> Add CORS header to your Apps Script.
-              <div style="font-size: 1rem; max-width: 600px; background: #f1f5f9; padding: 20px; border-radius: 20px; text-align: left;">
-                <p>In your Google Apps Script code, add:</p>
-                <pre style="background: #e2e8f0; padding: 10px; border-radius: 8px;">
-return ContentService
-  .createTextOutput(JSON.stringify(data))
-  .setMimeType(ContentService.MimeType.JSON)
-  .setHeader('Access-Control-Allow-Origin', '*');</pre>
-                <p>Then redeploy as a web app with access set to "Anyone".</p>
-              </div>
-            </div>
-          `;
+          console.error('Failed to load data:', error);
+          slidesContainer.innerHTML = `<div class="no-data-message">⚠️ Failed to load data. Check console.</div>`;
           loadingOverlay.style.opacity = '0';
           setTimeout(() => {
             loadingOverlay.style.display = 'none';
@@ -317,9 +266,7 @@ return ContentService
         }
       }
 
-      // --------------------------------------------------------------
-      // Music setup (unchanged)
-      // --------------------------------------------------------------
+      // باقي الدوال (setupMusic, renderSlides, buildSlideHTML, ...)
       function setupMusic(settings) {
         const musicUrl = settings.music_url;
         const musicTitle = settings.music_title || 'background track';
@@ -359,9 +306,6 @@ return ContentService
         });
       }
 
-      // --------------------------------------------------------------
-      // Render slides (unchanged)
-      // --------------------------------------------------------------
       function renderSlides() {
         if (!slidesData.length) return;
         let slidesHTML = '';
@@ -501,14 +445,9 @@ return ContentService
         }, 60000);
       }
 
-      // --------------------------------------------------------------
-      // Initialization
-      // --------------------------------------------------------------
-      (async function init() {
-        await fetchAllAndRender();
-        startAutoRefresh();
-      })();
-
+      // بدء التطبيق
+      fetchAllAndRender();
+      startAutoRefresh();
     })();
   </script>
 </body>
